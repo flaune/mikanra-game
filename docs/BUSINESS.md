@@ -36,6 +36,16 @@ At a hypothetical $14.99 price, 100 buyers produce $1,499 gross and 1,000 produc
 
 Use: contribution per buyer = actual net receipts minus variable service/support cost minus acquisition cost. Break-even buyers = fixed chapter cost / positive contribution per buyer, rounded up. Collect actual channel and cost data before projecting profit. Separate cash expenditure from uncompensated founder hours and recurring consumer revenue from one-off commissioned work.
 
+For a sensitivity check only, assume the $1,500 fixed budget above and an arbitrary $2 per purchase allowance for combined transaction, delivery and support costs. This allowance is not a provider quote. The fixed budget is not a scoped estimate for the expanded story pack; commission a production budget before committing to its size.
+
+| Hypothetical cost to acquire each buyer | Contribution at $14.99 | Buyers to recover $1,500 |
+| --- | --- | --- |
+| $0 (founder/community acquisition; founder time still costs money) | $12.99 | 116 |
+| $4 | $8.99 | 167 |
+| $8 | $4.99 | 301 |
+
+All three acquisition costs are unvalidated scenarios. Taxes, refunds and actual storefront terms could reduce contribution further. Scope writing/development hours, Japanese review, art/audio, QA and maintenance separately; do not equate gross sales with founder income.
+
 Acquisition hypotheses: short gameplay clips, cozy-game creators, beginner Japanese communities, and Japan-interest communities. Use approved community channels and measure the path from qualified visitor to first shift, return visit and paid interest. No outreach or paid acquisition has been performed as part of this release.
 
 ## A directional 30-day validation pilot
