@@ -33,6 +33,16 @@ test('old partially prepared recipes and trays remain usable',()=>{
  const s=service.freshService();s.coffee='tamped';const k=kitchen('coffee',1,2,service.readService(s));k.press();assert.equal(k.state.coffee,'locked');k.press();k.tick(6.1);k.reload();assert.equal(k.step(),null);
  const legacy=service.readService(null,['tea','tea'],[true,false]);assert.equal(service.guidedStep(legacy,'tea',2),null);
 });
+
+test('wrong and excess legacy tray cups can be returned directly from guided preparation',()=>{
+ for(const tray of [['water'],['coffee','coffee']]){
+  const k=kitchen('coffee',1,3,service.readService(null,tray));
+  k.reload();assert.equal(k.step().station,'return');k.press();
+  assert.equal(service.trayVessels(k.state).length,0);
+  assert.equal(k.state.vessels.length,4);assert.equal(k.state.vessels.filter(c=>c.state==='dirty').length,tray.length);
+  assert.notEqual(k.step().station,'return');
+ }
+});
 test('missing cups and supplies lead directly to recoverable chores',()=>{
  const s=service.freshService();s.vessels=s.vessels.map(v=>({...v,state:'dirty'}));s.stock.coffee=0;
  const k=kitchen('coffee',1,3,s);assert.equal(k.press().station,'pantry');assert.equal(k.state.stock.coffee,4);k.press();k.press();assert.equal(k.step().station,'sink');k.press();k.tick(3.1,'sink');k.press();k.tick(6.1);assert.equal(k.step(),null);

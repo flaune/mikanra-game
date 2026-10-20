@@ -27,10 +27,11 @@ export default function CafeWork({shift,progress,area,mode,onInput,onMode,onExit
     window.addEventListener('keydown',key);return()=>window.removeEventListener('keydown',key);
   },[area,word]);
   if(!s)return null;
-  if(!area)return ['brew','serve','report'].includes(shift.stage)?<aside className="workbench-hint"><span>{shift.stage==='report'?'Closing time':`${customer.name} · ${shift.tray.length}/${customer.count} cups ready`}</span><strong>{shift.tray.length>=customer.count?'Bring your tray to the customer':'E at a work area · prepare without aiming at each tool'}</strong></aside>:null;
+  const correctTray=shift.tray.length===customer.count&&shift.tray.every(drink=>drink===customer.drink);
+  if(!area)return ['brew','serve','report'].includes(shift.stage)?<aside className="workbench-hint"><span>{shift.stage==='report'?'Closing time':`${customer.name} · ${shift.tray.length}/${customer.count} cups on the tray`}</span><strong>{correctTray?'Bring your tray to the customer':'E at a work area · prepare without aiming at each tool'}</strong></aside>:null;
   const dirty=s.vessels.filter(c=>c.state==='dirty').length;
   const recipe=['brew','serve'].includes(shift.stage);
-  const ready=recipe&&shift.tray.length>=customer.count;
+  const ready=recipe&&correctTray;
   return <section className="cafe-work workbench-panel" aria-label="Café workbench" data-area={area}>
     <header><span>CAFE MIKAN / {area==='coffee'?'COFFEE':area==='tea'?'TEA & WATER':'CLEANUP'}</span><button onClick={onExit} aria-label="Leave workbench">Step away <kbd>Esc</kbd></button></header>
     <div className="bench-order"><span>{recipe?`${customer.name}’s order`:'Take your time'}</span>{recipe&&<><p lang="ja">{customer.line}</p><SpeakButton text={customer.line}/><small>{shift.tray.length} / {customer.count} cups on the tray</small></>}</div>

@@ -135,7 +135,9 @@ export function guidedStep(s: CafeService, drink: Drink, count: number, day = 1,
     if (!step) return null;
     return step.station === 'sink' ? wash() : { ...step, key: 'tidy-' + step.station };
   }
-  if (trayVessels(s).length >= count) return null;
+  const tray = trayVessels(s);
+  if (tray.length > count || tray.some(c => c.drink !== drink)) return { key: 'return-' + tray.map(c => `${c.id}-${c.drink}`).join('-'), station: 'return', label: 'Return the extra or incorrect cups', japanese: '片付け', word: 'cup' };
+  if (tray.length >= count) return null;
   if (s.vessels.some(c => c.state === 'filled')) return { key: 'collect-ready', station: 'tray', label: 'Collect the finished drink', japanese: 'できました', word: 'ready' };
   const available = s.activeCup !== undefined || s.vessels.some(c => c.state === 'clean');
   const remaining = Math.max(1, count - trayVessels(s).length) as 1 | 2;

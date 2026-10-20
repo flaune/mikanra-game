@@ -36,7 +36,7 @@ npm run dev
 Open the Vite URL in a current desktop browser with WebGL, a keyboard and mouse. Chromium is the primary automated test target. Touch-only devices and viewports narrower than 701 pixels display a desktop notice instead of starting the game. Controller and touch gameplay are not implemented.
 
 ```sh
-npm run check                 # Types, lint, 82 unit/runtime tests, production build
+npm run check                 # Types, lint, 83 unit/runtime tests, production build
 npm run preview               # Serve the production build locally
 npx playwright install chromium
 npm run test:e2e              # Starts its own dev and preview servers; runs browser checks

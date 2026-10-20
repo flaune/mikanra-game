@@ -6,7 +6,7 @@ Mikanra 0.1.0, public-source publication target: https://github.com/flaune/mikan
 
 ## Café repair branch and teaser
 
-`fix/cafe-flow` contains the subsequent usability repair and [30-second portrait teaser](TEASER.md). Its 82 unit/runtime/audio tests, types, lint and production build pass. Browser checks pass at 1440×900 and 1000×700, including a new journey that walks from the entrance to preparation, service and cleanup using ordinary controls. See [repair details](../CAFE_REPAIR.md). The original release verification below records the tagged 72-test build; the repair branch does not move either frozen tag or replace the public deployment. Review and publish the repair before using its workbench footage as the live demo's current behavior.
+`fix/cafe-flow` contains the subsequent usability repair and [30-second portrait teaser](TEASER.md). Its 83 unit/runtime/audio tests, types, lint and production build pass. Browser checks pass at 1440×900 and 1000×700, including a new journey that walks from the entrance to preparation, service and cleanup using ordinary controls. See [repair details](../CAFE_REPAIR.md). The original release verification below records the tagged 72-test build; the repair branch does not move either frozen tag or replace the public deployment. Review and publish the repair before using its workbench footage as the live demo's current behavior.
 
 ## Local verification completed
 
