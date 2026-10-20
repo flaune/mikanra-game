@@ -4,15 +4,15 @@ Chapter One follows seven mornings with Haru, Aoi, Ren and Yui, ending at the ne
 
 ## Working at the counter
 
-Tea: choose a one- or two-cup batch with 1/2, fill the kettle, switch it on, measure leaves, add hot water, steep, take clean cups, pour, and transfer each cup to the tray. Water heats in eight active seconds; tea steeps in six. Ready tea waits without a spoilage timer.
+Press E near a preparation tool from the staff side to settle at the steady workbench. The next action, confirmed order, Japanese help and progress stay together while walking and free look stop. Escape steps away, preserving unfinished work. Use the Pause button or field notes to freeze timers.
 
-Coffee: grind one dose, tamp it, attach the portafilter, take a clean cup, start extraction, and transfer the finished cup. Extraction takes six active seconds. Water: take a clean glass, fill it from the pitcher, then move it onto the tray.
+Tea: fill and heat the kettle, measure the confirmed order's remaining one- or two-cup batch, brew, then hold to pour each cup. Water heats in eight active seconds; tea steeps in six. Ready tea waits without a spoilage timer. Coffee: grind one dose, prepare the machine (tamp and attach), then brew. Extraction takes six active seconds. Water: hold to fill a glass. Real available cups are reserved automatically and completed drinks move onto the tray.
 
-Press E for each equipment action. Hold E for pouring, washing and wiping. Early interruptions preserve manual progress. For a perfect pour, release between 65% and 90%; ordinary completed drinks remain sufficient. Coffee extraction runs automatically, with an optional precision release at the machine. Perfect cups award ¥25 only after correct service and checkout.
+Use E or the primary workbench button for each action. Hold E or hold the button for pouring, washing and wiping. Early interruptions preserve manual progress. For a perfect pour, release between 65% and 90%; ordinary completed drinks remain sufficient. Coffee extraction runs automatically, with an optional precision release while working. Perfect cups award ¥25 only after correct service and checkout.
 
-Four individually tracked reusable vessels move through clean, reserved, filled, tray, served and dirty states. Haru cleans all returns on day one, including mistakes. From day two, wash cups at the sink. From day three, working stocks carry between mornings and can be refilled freely at the pantry. Washing, restocking and tidying work between customers and while brewing. From day five, one neighbor waits behind the active customer without a patience timer.
+Four individually tracked reusable vessels move through clean, reserved, filled, tray, served and dirty states. Haru cleans all returns on day one, including mistakes. From day two, batch washing cleans all returned dirty cups in one three-second hold. From day three, working stocks carry between mornings and can be refilled freely in one action. Washing and refilling are available directly from the workbench, including while brewing. From day five, one neighbor waits behind the active customer without a patience timer.
 
-Close by returning cups and emptying equipment, washing remaining vessels, wiping the counter and reviewing the till. The green marker follows the current valid task. The counter has physical tools and small labels rather than preparation menus.
+Closing guides the player through returning cups and emptying equipment, batch washing, wiping the counter and reviewing the till. The green marker follows the current valid task during exploration. Coffee, tea/water and cleanup have supported physical tools and one compact workbench card. Wrong or excess cups restored from a legacy tray expose a direct return action.
 
 ## Japanese through service
 
