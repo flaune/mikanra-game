@@ -5,7 +5,8 @@ const {launchBrowser,fixtureUrl,output,viewport}=require('./helpers.cjs');
  const browser=await launchBrowser();
  const page=await browser.newPage({viewport,deviceScaleFactor:process.env.CI?.5:1,reducedMotion:'reduce'});
  page.setDefaultTimeout(30000);const errors=[];page.on('pageerror',e=>errors.push(e.message));
- const state=()=>page.evaluate(()=>window.mikanraQA.shift());
+ // Interactive assertions read current simulation state; storage writes are throttled.
+ const state=()=>page.evaluate(()=>window.mikanraQA.engine.shift);
  const pose=()=>page.evaluate(()=>{const e=window.mikanraQA.engine;return{x:e.position.x,z:e.position.z,yaw:e.yaw};});
  async function screenshot(name){await page.addStyleTag({content:'body>details{display:none!important}'});await page.screenshot({path:path.join(output,'walk-'+name+'.png')});}
  async function axis(key,axis,target,sign){

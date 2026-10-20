@@ -7,7 +7,7 @@ const path = require('node:path');
   const page = await browser.newPage({ viewport, deviceScaleFactor: process.env.CI ? .5 : 1, reducedMotion: process.env.CI ? 'reduce' : 'no-preference' });
   const errors = []; page.on('pageerror', e => errors.push(e.message));
   const url = fixtureUrl;
-  const state = () => page.evaluate(() => window.mikanraQA.shift());
+  const state = () => page.evaluate(() => window.mikanraQA.engine.shift);
   async function screen(name) { await page.addStyleTag({ content: 'body > details { display: none !important; }' }); await page.screenshot({ path: path.join(output,name+'.png') }); }
   async function fixture(day) {
     await page.evaluate(day => {const qa=window.mikanraQA;const s=qa.newShift(day);s.hired=true;qa.save(s);},day);
@@ -39,7 +39,7 @@ const path = require('node:path');
   async function cook(c,capture=false) {
     await use('shift-'+c.drink);
     for(let n=0;n<100;n++){
-      const snapshot=await page.evaluate(()=>{const q=window.mikanraQA;return {tray:q.shift().tray,manual:q.engine.cafeService.manual};});
+      const snapshot=await page.evaluate(()=>{const e=window.mikanraQA.engine;return {tray:e.shift.tray,manual:e.cafeService.manual};});
       if(snapshot.tray.length>=c.count){await page.keyboard.press('Escape');return;}
       const button=page.locator('.bench-primary');
       if(await button.isDisabled()){
