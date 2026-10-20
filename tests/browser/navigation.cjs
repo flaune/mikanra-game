@@ -16,9 +16,11 @@ const {launchBrowser,fixtureUrl,output,viewport}=require('./helpers.cjs');
  }
  async function face(id){
   for(let n=0;n<60;n++){
-   const delta=await page.evaluate(id=>{const e=window.mikanraQA.engine,t=e.worldData.interactables.find(t=>t.id===id),p=t.mesh.getWorldPosition(e.position.clone());const yaw=Math.atan2(e.position.x-p.x,e.position.z-p.z);const pitch=Math.atan2(1.43-e.camera.position.y,Math.hypot(e.position.x-p.x,e.position.z-p.z));return {yaw:Math.atan2(Math.sin(yaw-e.yaw),Math.cos(yaw-e.yaw)),pitch:pitch-e.pitch};},id);
-   if(Math.abs(delta.yaw)<.12&&Math.abs(delta.pitch)<.15)return;
-   const horizontal=Math.abs(delta.yaw)>.12;
+   const delta=await page.evaluate(id=>{const e=window.mikanraQA.engine,t=e.worldData.interactables.find(t=>t.id===id),p=t.mesh.getWorldPosition(e.position.clone());const yaw=Math.atan2(e.position.x-p.x,e.position.z-p.z);const pitch=Math.atan2(1.43-e.camera.position.y,Math.hypot(e.position.x-p.x,e.position.z-p.z));return {hit:e.interaction.currentTarget?.id,yaw:Math.atan2(Math.sin(yaw-e.yaw),Math.cos(yaw-e.yaw)),pitch:pitch-e.pitch};},id);
+   // Stop on the real prompt. Software-rendered key pulses can span several frames;
+   // the fallback tolerance stays inside the game's existing .28-radian aim cone.
+   if(delta.hit===id||(Math.abs(delta.yaw)<.22&&Math.abs(delta.pitch)<.25))return;
+   const horizontal=Math.abs(delta.yaw)>.22;
    const error=horizontal?delta.yaw:delta.pitch;
    const key=horizontal?(error>0?'ArrowLeft':'ArrowRight'):(error>0?'ArrowUp':'ArrowDown');
    await page.keyboard.down(key);await page.waitForTimeout(Math.max(30,Math.min(350,Math.abs(error)/(horizontal?1.5:1.1)*800)));await page.keyboard.up(key);
