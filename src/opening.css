@@ -1,0 +1,159 @@
+/* Original opening design: a framed view of the city and a quiet invitation. */
+.rail-title.opening-title {
+  --opening-paper: #eee2ca;
+  --opening-ink: #342921;
+  --opening-edge: #a18560;
+  --opening-gold: #d4a45c;
+  color: var(--opening-paper);
+  background: linear-gradient(90deg, #261e1975, #261e1900 80%), linear-gradient(0deg, #261e198a, #261e1900 68%);
+}
+.opening-scene-frame { position: absolute; inset: 65px 35px 52px 87px; border: 5px ridge #7d634b; box-shadow: 0 0 0 100vmax #251d19b8, inset 0 0 80px #251d193b; }
+.opening-topline { position: absolute; top: 26px; left: 100px; right: 42px; display: flex; justify-content: space-between; align-items: center; gap: 20px; color: #d3be9a; font-size: 9px; letter-spacing: .16em; }
+.opening-topline span:first-child { font-size: 11px; letter-spacing: .08em; }
+.opening-wordmark { position: absolute; left: 127px; top: 105px; text-shadow: 0 2px 14px #251b13a8; }
+.opening-overline { display: block; font: 9px/1.5 'Noto Sans JP', system-ui, sans-serif; letter-spacing: .19em; color: #b99c70; }
+.opening-wordmark h1 { margin: 4px 0 7px; font: 400 clamp(61px, 7.1vw, 110px)/1.06 Georgia, 'Times New Roman', serif; letter-spacing: -.055em; }
+.opening-wordmark p { display: flex; align-items: center; gap: 15px; color: #e3d3b6; font: 12px Georgia, serif; }
+.opening-wordmark p span { font: 11px 'Noto Sans JP', sans-serif; letter-spacing: .2em; }
+.opening-wordmark p i { height: 12px; width: 1px; background: #c5a876; opacity: .7; }
+.opening-cafe-seal { position: absolute; right: 68px; top: 97px; width: 155px; display: grid; justify-items: center; gap: 10px; padding: 20px 12px; color: #e5d2ac; border: 3px double #a68a62; background: #32261cbd; box-shadow: 0 4px 16px #1e151950; }
+.opening-cafe-seal > span { font-size: 13px; letter-spacing: .12em; }
+.opening-cafe-seal svg { width: 53px; height: 47px; margin: 5px 0; }
+.opening-cafe-seal strong { font: 17px Georgia, serif; font-weight: 400; }
+.opening-cafe-seal small { font-size: 6px; letter-spacing: .1em; }
+.opening-invitation { position: absolute; bottom: 91px; left: 126px; width: min(445px, calc(100% - 230px)); padding: 24px 29px 20px; background: #eee2caf2; color: var(--opening-ink); border: 4px double var(--opening-edge); box-shadow: 6px 6px 0 #241b17a0; }
+.opening-invitation .opening-overline { color: #8f6c43; font-size: 8px; }
+.opening-invitation h2 { font: 400 clamp(28px, 3vw, 40px)/1.15 Georgia, serif; letter-spacing: -.03em; margin: 9px 0 14px; }
+.opening-invitation > p { font: 14px/1.7 Georgia, serif; color: #786147; margin-bottom: 20px; }
+.rail-play.opening-play { width: 100%; min-height: 45px; padding: 13px 15px; background: #493629; color: #f3e6ca; border: 1px solid #98764e; box-shadow: 0 3px 0 #c4ae8c; transform: none; font: 500 11px/1.4 'Noto Sans JP', system-ui, sans-serif; letter-spacing: .09em; gap: 20px; text-decoration: none; transition: background-color .16s ease; }
+.rail-play.opening-play span, .rail-play.opening-play b { transform: none; }
+.rail-play.opening-play b { color: #d1b37e; font: 22px/1 Georgia, serif; }
+.rail-play.opening-play:hover:not(:disabled) { transform: none; background: #664c33; box-shadow: 0 3px 0 #c4ae8c; }
+.rail-play.opening-play:disabled { opacity: .55; }
+.opening-invitation > small { display: block; margin-top: 15px; color: #8f7858; font: italic 10px/1.6 Georgia, serif; }
+.opening-audio { position: absolute; left: 17px; top: 107px; width: 52px; display: grid; justify-items: center; color: #eee2ca; pointer-events: auto; }
+.opening-audio > span { display: grid; place-items: center; width: 43px; height: 43px; background: #3b2d23ec; border: 3px double #aa8963; border-radius: 50%; font: 23px Georgia, serif; }
+.opening-audio small { font-size: 7px; letter-spacing: .09em; margin-top: 7px; }
+.opening-audio:hover > span { border-color: #edd1a4; background: #705638; }
+.opening-audio-note { position: absolute; left: 99px; bottom: 24px; font: italic 10px Georgia, serif; color: #bea887; }
+.opening-credit { position: absolute; bottom: 22px; right: 42px; display: flex; align-items: baseline; gap: 7px; color: #cbb899; font: 10px Georgia, serif; text-decoration: none; pointer-events: auto; }
+.opening-credit strong { color: #e7d8bd; font-weight: 400; font-size: 13px; }
+.opening-credit > span { margin-left: 4px; color: #b89053; }
+.opening-credit:hover { color: #f7e8c8; }
+.rail-arrival-shade.opening-arrival-shade { background: #201914; }
+.opening-arrival-copy { position: absolute; left: 126px; right: 90px; bottom: 118px; color: #f1e3c8; text-shadow: 0 2px 10px #211811; animation: opening-arrive .7s ease-out both; }
+.opening-arrival-copy h2 { display: flex; gap: 28px; align-items: center; font: 400 clamp(50px, 6.4vw, 90px)/1.1 Georgia, serif; letter-spacing: -.035em; margin: 11px 0 23px; }
+.opening-arrival-copy h2 span { font: 20px 'Noto Sans JP', sans-serif; letter-spacing: .15em; color: #c7b394; }
+.opening-arrival-copy p { font: 15px/1.7 Georgia, serif; }
+.opening-arrival-copy small { display: block; margin-top: 12px; color: #baa98d; font: italic 12px Georgia, serif; }
+.opening-skip { position: absolute; bottom: 22px; right: 42px; font-size: 9px; color: #c5b395; letter-spacing: .13em; }
+.opening-title button:focus-visible, .opening-title a:focus-visible, .opening-mobile a:focus-visible { outline: 2px solid #e0ac61; outline-offset: 5px; }
+
+/* Pause shares the notebook's paper, framing and unhurried type. */
+.rail-pause.rail-pause { color: #eee2ca; background: #261e19db; backdrop-filter: blur(4px); padding: 52px 75px; overflow-y: auto; }
+.rail-pause.rail-pause::before { content: ''; position: absolute; inset: 29px; border: 4px double #887050; pointer-events: none; }
+.rail-pause.rail-pause .rail-kicker { color: #c6aa7b; font: 9px/1.5 'Noto Sans JP', sans-serif; letter-spacing: .19em; margin-bottom: 14px; }
+.rail-pause.rail-pause h1 { font: 400 clamp(35px, 4.5vw, 60px)/1.1 Georgia, serif; text-transform: lowercase; transform: none; margin: 0 0 18px; letter-spacing: -.04em; }
+.rail-pause.rail-pause h1::first-letter { text-transform: uppercase; }
+.rail-pause.rail-pause > p { color: #cbb99b; max-width: 470px; font: 14px/1.7 Georgia, serif; margin-bottom: 25px; }
+.rail-pause.rail-pause .rail-play { width: min(350px, 100%); min-height: 46px; background: #eee2ca; color: #4b3828; border: 3px double #a68a62; padding: 13px 17px; box-shadow: 3px 4px 0 #17100bbd; font: 500 11px/1.4 'Noto Sans JP', sans-serif; transform: none; letter-spacing: .08em; gap: 20px; }
+.rail-pause.rail-pause .rail-play span, .rail-pause.rail-pause .rail-play b { transform: none; }
+.rail-pause.rail-pause .rail-play b { color: #9b774b; font: 20px Georgia, serif; }
+.rail-pause.rail-pause .rail-play:hover { background: #e3cfa9; transform: none; box-shadow: 3px 4px 0 #17100bbd; }
+.rail-pause.rail-pause .pause-notebook { border: 0; border-bottom: 1px solid #8f7755; color: #d5c19d; background: transparent; padding: 7px 2px; font: 12px Georgia, serif; margin-top: 14px; }
+.rail-pause.rail-pause .pause-notebook:hover { color: #f2e0bc; background: transparent; border-color: #d3b77e; }
+.rail-pause.rail-pause .rail-controls { color: #a99575; font-size: 9px; gap: 23px; margin-top: 29px; }
+.rail-pause.rail-pause > small { max-width: 430px; color: #b4a084; font: italic 10px/1.6 Georgia, serif; margin-top: 21px; }
+.rail-pause.rail-pause button:focus-visible { outline: 2px solid #d6a153; outline-offset: 5px; }
+
+.rail-mobile.opening-mobile { background: #261e19; color: #eee2ca; padding: max(30px, env(safe-area-inset-top)) 27px max(24px, env(safe-area-inset-bottom)); gap: 24px; }
+.opening-mobile-logo { align-self: flex-start; font: 41px/1 Georgia, serif; letter-spacing: -.05em; }
+.opening-mobile-logo span { display: block; font: 10px 'Noto Sans JP', sans-serif; letter-spacing: .25em; margin-top: 9px; color: #c3a77b; }
+.opening-mobile-card { width: 100%; max-width: 390px; margin: auto 0; padding: 25px 23px; background: #eee2ca; border: 4px double #a18560; color: #342921; box-shadow: 5px 6px 0 #15100db0; }
+.opening-mobile-card .opening-overline { color: #8b6f4b; font-size: 8px; }
+.opening-mobile-card h1 { font: 37px/1.1 Georgia, serif; letter-spacing: -.04em; margin: 15px 0 22px; }
+.opening-mobile-card p { font: 14px/1.8 Georgia, serif; color: #82694a; margin: 13px 0; }
+.opening-mobile-card .opening-play { margin-top: 17px; font-size: 10px; }
+.opening-mobile-credit { color: #b9a182; font: 10px Georgia, serif; align-self: flex-end; }
+.opening-mobile-credit strong { color: #e4d2b2; font-weight: 400; margin-left: 4px; }
+
+@keyframes opening-arrive { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+@media (max-width: 1000px) {
+  .opening-scene-frame { inset: 58px 23px 48px 72px; }
+  .opening-topline { left: 85px; right: 31px; top: 24px; }
+  .opening-wordmark { left: 104px; top: 87px; }
+  .opening-invitation { left: 103px; bottom: 77px; width: min(400px, calc(100% - 160px)); padding: 19px 24px 18px; }
+  .opening-cafe-seal { right: 43px; top: 86px; width: 127px; padding: 15px 10px; }
+  .opening-cafe-seal small { font-size: 5px; }
+  .opening-audio { left: 10px; top: 89px; }
+  .opening-audio-note { left: 86px; bottom: 21px; }
+  .opening-credit, .opening-skip { right: 31px; bottom: 21px; }
+  .opening-arrival-copy { left: 106px; right: 48px; bottom: 95px; }
+}
+@media (max-height: 650px) {
+  .opening-wordmark { top: 84px; }
+  .opening-wordmark h1 { font-size: 64px; margin-top: 0; }
+  .opening-wordmark p { font-size: 10px; }
+  .opening-invitation { bottom: 74px; padding: 17px 23px 15px; }
+  .opening-invitation h2 { font-size: 30px; margin: 7px 0 9px; }
+  .opening-invitation > p { font-size: 12px; line-height: 1.65; margin-bottom: 12px; }
+  .opening-invitation > small { font-size: 9px; margin-top: 12px; }
+  .opening-cafe-seal { top: 84px; padding-block: 13px; }
+  .rail-pause.rail-pause { padding: 40px 65px; }
+  .rail-pause.rail-pause h1 { margin-bottom: 12px; }
+  .rail-pause.rail-pause > p { margin-bottom: 18px; }
+  .rail-pause.rail-pause .rail-controls { margin-top: 20px; }
+}
+@media (max-width: 760px) {
+  .opening-cafe-seal { display: none; }
+  .opening-topline > span:last-child { font-size: 7px; }
+  .opening-wordmark p { flex-wrap: wrap; gap: 10px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rail-play.opening-play, .rail-pause.rail-pause .rail-play { transition: none; }
+  .opening-arrival-copy { animation: none; }
+  .rail-arrival-shade.opening-arrival-shade { animation: none; opacity: .9; }
+}
+
+/* Minimal title menu leaves the original subway in view. */
+.rail-title.opening-title.simple-title {
+  --menu-text: #fff5df;
+  --menu-accent: #d8b879;
+  background: linear-gradient(270deg, #171d2660, transparent 55%);
+  color: var(--menu-text);
+}
+.simple-title-logo {
+  position: absolute; top: 13%; right: 8%; margin: 0;
+  font: 400 clamp(60px, 8vw, 116px)/1 Georgia, serif;
+  letter-spacing: -.055em; text-shadow: 0 3px 20px #10182090;
+}
+.simple-title-menu, .simple-credits {
+  position: absolute; right: 8%; bottom: 18%;
+  display: flex; flex-direction: column; align-items: flex-end; gap: 10px;
+  pointer-events: auto;
+}
+.simple-title-menu button, .simple-credits button {
+  border: 0; background: transparent; color: var(--menu-text);
+  padding: 8px 0 8px 22px; cursor: pointer;
+  font: 700 clamp(24px, 3.4vw, 44px)/1.1 'Noto Sans JP', system-ui, sans-serif;
+  letter-spacing: -.04em; text-transform: uppercase;
+  text-shadow: 0 2px 12px #101820c0;
+  transition: color .15s ease;
+}
+.simple-title-menu button:hover, .simple-credits button:hover { color: var(--menu-accent); }
+.simple-title-menu button:disabled { opacity: .45; cursor: wait; }
+.simple-credits h2 { margin: 0; font: 700 30px/1.2 system-ui, sans-serif; }
+.simple-credits p { margin: 10px 0 25px; font: 400 48px/1.2 Georgia, serif; text-shadow: 0 2px 12px #101820; }
+.simple-credits button { font-size: 22px; }
+.simple-credits p a { color: inherit; text-decoration: none; }
+.simple-credits p a:hover { color: var(--menu-accent); text-decoration: underline; text-underline-offset: 7px; }
+.simple-audio-credit { max-width: 300px; font: 11px/1.7 system-ui, sans-serif; text-align: right; margin-bottom: 12px; text-shadow: 0 1px 6px #101820; }
+.simple-audio-credit a { text-decoration: underline; text-underline-offset: 3px; }
+.simple-title .opening-arrival-shade { animation-duration: 14s; }
+@media (max-height: 500px) {
+  .simple-title-logo { top: 8%; font-size: 60px; }
+  .simple-title-menu, .simple-credits { bottom: 10%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .simple-title-menu button, .simple-credits button { transition: none; }
+}

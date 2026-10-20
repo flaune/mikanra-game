@@ -1,0 +1,187 @@
+/* Original café UI informed by the reference's framed scene, parchment dialogue and word annotations. */
+:root { --story-ink: #342921; --story-paper: #eee2ca; --story-paper-light: #f8f0de; --story-edge: #a18560; --story-gold: #d4a45c; --story-muted: #81705a; --story-dark: #261e19; }
+.story-counter { position: absolute; inset: 0; z-index: 30; color: var(--story-ink); pointer-events: none; outline: none; }
+.story-counter > :not(.story-frame) { pointer-events: auto; }
+.story-frame { position: absolute; inset: 90px 24px 185px 88px; border: 5px ridge #6d5744; box-shadow: 0 0 0 100vmax #20191564, inset 0 0 50px #1c141530; pointer-events: none; }
+.story-day { position: absolute; left: 96px; top: 17px; color: var(--story-paper); text-shadow: 0 2px 7px #201915; }
+.story-day > span { font-size: 10px; letter-spacing: .18em; color: #d8bd96; }
+.story-day h1 { display: flex; gap: 9px; align-items: baseline; margin: 2px 0 5px; font: 24px Georgia, serif; }
+.story-day h1 i { font-size: 13px; color: #c6b28e; font-style: normal; }
+.story-day h1 small { margin-left: 15px; font: 12px Georgia, serif; color: #e6d4b6; }
+.story-day ol { list-style: none; display: flex; gap: 11px; margin: 0; padding: 0; }
+.story-day li { width: 16px; text-align: center; font: 9px monospace; color: #b6a286; padding-bottom: 3px; }
+.story-day li.current { color: #ffe5b6; border-bottom: 2px solid var(--story-gold); }
+.story-day li.past { color: #d4a45c; }
+.story-rail { position: absolute; left: 19px; top: 103px; display: grid; gap: 21px; }
+.story-rail button { position: relative; width: 51px; height: 51px; color: var(--story-paper); font-size: 27px; text-shadow: 0 2px 2px #211914; }
+.story-rail button::before { content: ''; position: absolute; inset: 5px; transform: rotate(45deg); border: 3px double #aa8963; background: #3b2d23ec; border-radius: 5px; z-index: -1; }
+.story-rail small { display: block; position: absolute; left: 0; right: 0; bottom: -11px; font: 8px 'Noto Sans JP', sans-serif; letter-spacing: .12em; }
+.story-rail button:hover::before { border-color: #edd1a4; background: #705638; }
+.story-ledger { position: absolute; right: 28px; top: 32px; color: var(--story-paper); display: flex; gap: 18px; align-items: center; font-size: 11px; }
+.story-ledger b { font: 18px Georgia, serif; }
+.story-workbench { position: absolute; right: 38px; top: 115px; width: 278px; max-height: calc(100dvh - 160px); overflow-y: auto; scrollbar-width: thin; padding: 17px; background: var(--story-paper); border: 4px double var(--story-edge); box-shadow: 5px 6px 0 #241b17a0; }
+.story-overline { display: block; font-size: 8px; letter-spacing: .18em; color: #8f6c43; font-weight: 700; }
+.story-workbench h2 { font: 21px Georgia, serif; margin: 8px 0 14px; }
+.story-ticket { background: var(--story-paper-light); border: 1px dashed #bea780; padding: 13px; margin-bottom: 14px; }
+.story-ticket small { display: block; font: 8px monospace; letter-spacing: .08em; color: #907c5e; margin-bottom: 6px; }
+.story-ticket strong { display: block; font-size: 19px; font-weight: 500; min-height: 28px; }
+.story-menu { display: grid; gap: 6px; }
+.story-menu button { display: flex; justify-content: space-between; align-items: center; padding: 10px 13px; background: #f8efde; border: 1px solid #c7b69a; text-align: left; font-size: 16px; }
+.story-menu small { font-size: 11px; color: #897457; }
+.story-menu button[aria-pressed=true], .story-quantity button[aria-pressed=true] { background: #ead3a9; border-color: #b08143; box-shadow: inset 0 0 0 1px #b08143; }
+.story-quantity { display: flex; gap: 8px; margin: 12px 0; }
+.story-quantity button { flex: 1; border: 1px solid #bbaa8b; padding: 8px; background: #f8efde; }
+.story-primary { display: flex; align-items: center; justify-content: space-between; gap: 16px; background: #4a382a; color: #f8ecd2; border: 1px solid #92734f; padding: 12px 14px; font-size: 12px; min-height: 42px; width: 100%; box-shadow: 0 3px 0 #b6a17e; }
+.story-primary:hover:not(:disabled) { background: #6a4e32; }
+.story-primary:disabled { opacity: .4; cursor: default; box-shadow: none; }
+.story-text-button { font-size: 11px; text-decoration: underline; text-underline-offset: 4px; color: #7c6448; padding: 9px 0; }
+.story-text-button:disabled { opacity: .4; }
+.story-drinks { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
+.story-drinks button { min-width: 0; background: #f7ecd7; border: 1px solid #c6b391; padding: 7px 3px; display: grid; place-items: center; gap: 4px; touch-action: none; user-select: none; }
+.story-drinks b { font-size: 11px; font-weight: 500; }
+.story-drinks progress { height: 3px; width: 90%; accent-color: #aa7b42; }
+.story-drinks .is-filling { border-color: #9c6b30; box-shadow: inset 0 0 0 1px #ba8d4e; }
+.story-drinks button:disabled { opacity: .45; }
+.story-pour-hint { margin-top: 8px; font-size: 9px; color: #8a7456; line-height: 1.5; }
+.story-cup { width: 52px; height: 47px; }
+.cup-body { fill: #dccbab; stroke: #8f7654; stroke-width: 2px; }
+.cup-handle { stroke: #8f7654; }
+.cup-liquid { fill: #72513c; }
+.story-cup.tea .cup-liquid { fill: #9d9959; }
+.story-cup.water .cup-liquid { fill: #a6bdba; }
+.cup-saucer { fill: #b9a184; }
+.cup-steam { stroke: #b29b7a; }
+.story-cup.water .cup-steam { display: none; }
+.story-serving-tray { min-height: 84px; display: flex; align-items: center; justify-content: center; gap: 16px; margin: 14px 0 12px; background: #ac8c61; border: 3px double #7c5b3b; border-radius: 40%; }
+.story-serving-tray > span { display: grid; place-items: center; }
+.story-serving-tray small { font-size: 9px; color: #513e2b; }
+.story-serving-tray .story-cup { width: 48px; height: 42px; }
+.story-till-screen { background: #d6d4b7; color: #4b4933; border: 4px inset #9c997d; padding: 9px 12px; margin-bottom: 11px; }
+.story-till-screen small { display: block; font: 9px monospace; }
+.story-till-screen output { display: block; font: 29px/1.2 'Courier New', monospace; }
+.story-keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
+.story-keypad button { background: #f9f0dc; border: 1px solid #b5a080; box-shadow: 0 2px 0 #b5a080; padding: 6px; font: 17px monospace; }
+.story-price-guide { font-size: 10px; padding: 11px 0; color: #7c6448; }
+.story-price-guide p { display: flex; justify-content: space-between; margin-top: 8px; }
+.story-change { border-top: 1px solid #bdaa8c; padding: 10px 0 12px; font-size: 11px; }
+.story-change > span { display: flex; justify-content: space-between; margin-bottom: 10px; }
+.story-change > div { display: flex; gap: 6px; }
+.story-change > div button { flex: 1; border: 2px double #b39463; background: #d6b983; border-radius: 50%; padding: 9px 0; font-size: 10px; }
+.story-change button:disabled { opacity: .4; }
+.story-dialogue { position: absolute; left: 98px; right: 342px; bottom: 40px; min-height: 123px; padding: 17px 25px 12px; background: var(--story-paper); border: 4px double #ad8e61; box-shadow: 4px 5px 0 #271c17b0; }
+.story-speaker { position: absolute; bottom: calc(100% + 4px); left: 12px; background: #433326; border: 3px double #ad8e61; color: #f1e1c2; padding: 4px 16px; font: 14px Georgia, serif; }
+.story-speaker small { margin-left: 12px; font: 8px 'Noto Sans JP', sans-serif; letter-spacing: .04em; color: #cbb792; }
+.story-arrival-line { font: 15px/1.6 Georgia, serif; margin: 2px 0 15px; }
+.story-replies { display: flex; gap: 14px; flex-wrap: wrap; }
+.story-replies button { font-size: 14px; border-bottom: 2px solid #b59a74; padding: 5px 8px; }
+.story-replies button:hover { background: #ddc49b; border-color: #9a6b36; }
+.story-japanese-line { font-size: 21px; line-height: 1.65; }
+.story-whisper { font: italic 12px/1.7 Georgia, serif; color: #8a7456; margin-top: 7px; }
+.story-dialogue .word-sentence { display: flex; gap: 8px; margin: 0 0 7px; flex-wrap: wrap; align-items: end; }
+.story-dialogue .word-sentence button { display: flex; flex-direction: column; gap: 3px; background: transparent; border: 0; border-bottom: 3px double #b8a17d; border-radius: 0; font-size: clamp(18px, 1.9vw, 26px); font-weight: 500; padding: 1px 8px 5px; }
+.story-dialogue .word-sentence small { order: -1; color: #8f744f; font-size: 10px; font-weight: 400; max-width: 140px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.story-dialogue .word-sentence button.word-interpreted { border-bottom-color: #946830; }
+.story-dialogue .word-sentence button:hover { background: #e4cfa9; }
+.story-dialogue .sentence-stop { font-size: 24px; padding-bottom: 5px; }
+.story-dialogue-tools { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.story-dialogue-tools > span { color: #938063; font-size: 9px; }
+.story-dialogue-tools > button { color: #765a39; font-size: 10px; text-decoration: underline; text-underline-offset: 3px; }
+.story-dialogue .speak-control button { padding: 3px 7px; color: #765a39; border-color: #c5b391; font-size: 9px; }
+.story-dialogue .speak-control small:empty { display: none; }
+.story-translation, .story-observation { font-size: 11px; color: #7c6448; margin: 7px 0 0; line-height: 1.5; }
+.story-dialogue .deduction-entry { position: absolute; bottom: calc(100% + 35px); left: 0; width: 330px; padding: 18px; border: 4px double #ad8e61; box-shadow: 5px 5px 0 #34251ab0; background: #f3e8d1; display: grid; gap: 9px; max-height: 65vh; overflow: auto; }
+.deduction-entry-head { display: flex; align-items: center; gap: 12px; }
+.deduction-entry-head > span { font-size: 26px; flex: 1; }
+.deduction-entry-head > button { font-size: 22px; }
+.story-dialogue .deduction-entry label { font-size: 12px; }
+.story-dialogue .deduction-entry input { width: 100%; padding: 10px; border: 1px solid #b39b76; background: #fff7e6; }
+.story-dialogue .deduction-entry .mikan-primary { background: #59402c; color: #fff0d3; border-color: #8d6c45; box-shadow: none; padding: 10px; }
+.story-dialogue .deduction-entry small { font-size: 9px; color: #8f7958; }
+.deduction-reading { font-size: 11px; color: #8a7456; }
+.story-feedback { position: absolute; left: 96px; right: 29px; bottom: 8px; color: #eee1c8; font: 11px/1.5 Georgia, serif; text-shadow: 0 1px 5px #211710; }
+.story-chapter { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(620px, calc(100% - 190px)); max-height: calc(100dvh - 150px); overflow: auto; padding: 30px 36px; background: #eee2caef; border: 5px double #a3865e; box-shadow: 10px 12px 0 #241b17a0; }
+.story-chapter h2 { font: 34px/1.15 Georgia, serif; margin: 12px 0 18px; }
+.story-chapter > p:not(.story-whisper) { font: 16px/1.8 Georgia, serif; margin-bottom: 18px; }
+.story-chapter-actions { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; margin-top: 22px; }
+.story-chapter .story-primary { width: auto; }
+.story-instructions { position: absolute; z-index: 3; left: 94px; top: 107px; width: min(370px, calc(100% - 125px)); background: #eee2ca; border: 4px double #a3865e; padding: 22px; box-shadow: 5px 6px 0 #241b17a0; }
+.story-instructions > button { float: right; font-size: 24px; }
+.story-instructions h2 { font: 24px Georgia, serif; margin-bottom: 15px; }
+.story-instructions ol { list-style: decimal; padding-left: 20px; font-size: 12px; line-height: 1.8; }
+.story-instructions li { margin-bottom: 10px; }
+.story-instructions p { font-size: 11px; line-height: 1.7; color: #8a7456; }
+.story-bonds { display: grid; gap: 12px; margin: 18px 0; }
+.story-bonds > div { display: grid; grid-template-columns: 50px 1fr; gap: 5px 12px; }
+.story-bonds strong { font: 15px Georgia, serif; }
+.story-bonds > div > span { display: flex; gap: 6px; align-items: center; }
+.story-bonds i { width: 11px; height: 11px; border: 1px solid #ab926f; transform: rotate(45deg); }
+.story-bonds i.earned { background: #b48c4f; }
+.story-bonds small { grid-column: 2; font-size: 10px; color: #8a7456; }
+.story-counter button:focus-visible, .story-counter input:focus-visible, .story-counter summary:focus-visible { outline: 2px solid #d6a153; outline-offset: 4px; }
+.story-counter button { transition: background-color .15s ease, border-color .15s ease; }
+
+/* A dictionary of your interpretations; official meanings remain folded away. */
+.learning-dialog { --mikan-ink: #342921; --mikan-paper: #eee2ca; --mikan-orange: #b89053; --mikan-teal: #6c5235; }
+.learning-shell { border: 5px double #ab8d64; box-shadow: 10px 10px 0 #221911a8; }
+.learning-header { background: #3d2e23; border-bottom: 2px solid #aa895d; padding: 17px 25px; }
+.learning-header h1 { font-weight: 400; }
+.learning-header h1 > span { color: #d1ba94; }
+.learning-dialog .mikan-primary { background: #5b412a; border-color: #8e6d45; box-shadow: 2px 2px 0 #bea47d; }
+.learning-dialog .mikan-secondary { border-color: #a78b65; color: #765a38; }
+.learning-dialog .lexicon-layout { grid-template-columns: 1fr; }
+.lexicon-content { padding: 22px 26px; min-height: 430px; background: #eee2ca; }
+.lexicon-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.lexicon-toolbar .chapter-label { color: #8e7351; margin: 0; gap: 20px; }
+.lexicon-toolbar button { padding: 8px 12px; min-height: 34px; font-size: 10px; }
+.lexicon-guidance { font: italic 13px Georgia, serif; color: #907a5b; margin: 15px 0 20px; }
+.lexicon-workspace { display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 26px; }
+.lexicon-index { display: grid; grid-template-columns: 1fr 1fr; align-content: start; gap: 9px; max-height: 420px; overflow-y: auto; padding: 3px; scrollbar-width: thin; }
+.lexicon-token { position: relative; min-width: 0; display: flex; padding: 12px 9px 10px; text-align: center; background: #f5e9d2; border: 1px solid #c4af8d; min-height: 86px; align-items: center; justify-content: center; }
+.lexicon-token[aria-pressed=true] { border-color: #b87e35; outline: 2px solid #c4934e; outline-offset: 0; background: #ebd2a8; }
+.lexicon-token-number { position: absolute; left: 5px; top: 3px; font: 7px monospace; color: #a48b69; }
+.lexicon-token-copy { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.lexicon-token-copy strong { font-size: 17px; font-weight: 500; word-break: break-word; }
+.lexicon-token-copy small { font-size: 9px; color: #907553; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 125px; }
+.lexicon-due { position: absolute; top: 1px; right: 5px; color: #a47039; }
+.lexicon-entry { border-left: 1px solid #c8b495; padding-left: 26px; }
+.lexicon-entry-heading { display: flex; align-items: start; justify-content: space-between; gap: 15px; }
+.lexicon-entry-heading .eyebrow { color: #9e8059; }
+.lexicon-entry-heading h2 { font-family: 'Noto Sans JP', sans-serif; font-size: 32px; margin: 6px 0; letter-spacing: .04em; }
+.lexicon-reading { color: #9a7c56; font-size: 12px; margin: 0 0 23px; }
+.lexicon-reading span { margin-left: 16px; font-style: italic; }
+.lexicon-hypothesis { display: grid; gap: 9px; }
+.lexicon-hypothesis label { font: 15px Georgia, serif; }
+.lexicon-hypothesis input { padding: 13px; color: #4a3525; background: #fff6e2; border: 1px solid #b79c73; border-bottom: 3px double #ad8958; width: 100%; font-size: 16px; }
+.lexicon-hypothesis input:focus-visible, .lexicon-settings summary:focus-visible { outline: 2px solid #c4934e; outline-offset: 3px; }
+.lexicon-hypothesis p { font: italic 11px/1.6 Georgia, serif; color: #92795a; }
+.lexicon-hypothesis > div { display: flex; align-items: center; gap: 14px; margin-top: 3px; }
+.lexicon-hypothesis [role=status] { color: #8b6e49; font-size: 10px; }
+.lexicon-memory { display: flex; justify-content: space-between; gap: 15px; margin: 23px 0 18px; padding: 15px 0; border-block: 1px solid #cdb898; }
+.lexicon-memory > div { display: grid; grid-template-columns: auto 1fr; gap: 7px 9px; }
+.lexicon-memory strong { font: 13px Georgia, serif; }
+.lexicon-memory small { grid-column: 1 / -1; color: #9b8261; font-size: 9px; }
+.lexicon-memory > span { color: #8e7351; font-size: 10px; }
+.lexicon-recall-dots { display: flex; align-items: center; gap: 4px; }
+.lexicon-recall-dots i { width: 6px; height: 6px; border: 1px solid #ac916a; border-radius: 50%; }
+.lexicon-recall-dots .earned { background: #ac8245; }
+.lexicon-reference { border-top: 1px dashed #bea47d; margin-top: 20px; padding-top: 13px; }
+.lexicon-reference-toggle { display: flex; width: 100%; justify-content: space-between; color: #967958; font-size: 11px; }
+.lexicon-reference > div { margin-top: 16px; background: #e4d4b7; padding: 14px; }
+.lexicon-reference > div[hidden] { display: none; }
+.lexicon-reference .eyebrow { color: #94754f; }
+.lexicon-reference strong { font-size: 13px; }
+.lexicon-reference p { font-size: 11px; line-height: 1.75; margin: 8px 0; color: #846b4a; }
+.lexicon-reference small { font-style: italic; font-size: 9px; color: #978162; }
+.lexicon-settings { margin: 23px 0 15px; border-top: 1px solid #c6b08d; padding-top: 13px; color: #917553; font-size: 11px; }
+.lexicon-settings summary { cursor: pointer; }
+.lexicon-settings .learning-settings { margin-top: 13px; border-color: #c6b08d; }
+.lexicon-content > .save-note { font-size: 9px; color: #947958; }
+@media (max-width: 1000px) { .story-workbench { width: 240px; right: 25px; padding: 12px; } .story-dialogue { right: 282px; left: 85px; padding: 12px 16px; } .story-dialogue .word-sentence { gap: 3px; } .story-dialogue .word-sentence button { padding-inline: 4px; font-size: 18px; } .story-dialogue-tools { gap: 8px; } .story-day { left: 87px; } .story-speaker small { display: none; } .lexicon-workspace { grid-template-columns: 240px minmax(0, 1fr); gap: 18px; } .lexicon-entry { padding-left: 18px; } }
+@media (max-height: 690px) { .story-frame { top: 75px; bottom: 165px; } .story-day { top: 10px; } .story-day h1 { font-size: 21px; } .story-workbench { top: 91px; max-height: calc(100dvh - 125px); } .story-workbench h2 { font-size: 18px; margin: 6px 0 9px; } .story-dialogue { bottom: 34px; min-height: 105px; padding: 10px 16px; } .story-dialogue .word-sentence button { font-size: 19px; } .story-ticket { padding: 8px 10px; margin-bottom: 9px; } .story-menu button { padding-block: 7px; } .story-serving-tray { min-height: 66px; margin-block: 9px; } .story-keypad button { padding: 4px; } .story-change { padding: 7px 0; } }
+@media (max-width: 700px) { .lexicon-workspace { grid-template-columns: 1fr; } .lexicon-index { grid-template-columns: repeat(3, 1fr); max-height: 190px; } .lexicon-entry { border-left: 0; border-top: 1px solid #c8b495; padding: 20px 0 0; } }
+@media (prefers-reduced-motion: reduce) { .story-counter button { transition: none; } }
+
+@media (max-height: 500px) {
+  .story-dialogue .deduction-entry { position: fixed; top: 80px; bottom: auto; left: 95px; max-height: calc(100dvh - 100px); }
+  .story-instructions { top: 80px; max-height: calc(100dvh - 100px); overflow-y: auto; }
+}

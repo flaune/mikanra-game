@@ -1,0 +1,252 @@
+[
+  {
+    "text": "おはようございます",
+    "reading": "おはようございます",
+    "file": "ja-01.mp3"
+  },
+  {
+    "text": "いらっしゃいませ",
+    "reading": "いらっしゃいませ",
+    "file": "ja-02.mp3"
+  },
+  {
+    "text": "コーヒー",
+    "reading": "コーヒー",
+    "file": "ja-03.mp3"
+  },
+  {
+    "text": "水",
+    "reading": "みず",
+    "file": "ja-04.mp3"
+  },
+  {
+    "text": "お茶",
+    "reading": "おちゃ",
+    "file": "ja-05.mp3"
+  },
+  {
+    "text": "コーヒーをください",
+    "reading": "コーヒーをください",
+    "file": "ja-06.mp3"
+  },
+  {
+    "text": "一つ",
+    "reading": "ひとつ",
+    "file": "ja-07.mp3"
+  },
+  {
+    "text": "二つ",
+    "reading": "ふたつ",
+    "file": "ja-08.mp3"
+  },
+  {
+    "text": "四百五十円",
+    "reading": "よんひゃくごじゅうえん",
+    "file": "ja-09.mp3"
+  },
+  {
+    "text": "ありがとうございます",
+    "reading": "ありがとうございます",
+    "file": "ja-10.mp3"
+  },
+  {
+    "text": "どうぞ",
+    "reading": "どうぞ",
+    "file": "ja-11.mp3"
+  },
+  {
+    "text": "すみません",
+    "reading": "すみません",
+    "file": "ja-12.mp3"
+  },
+  {
+    "text": "喫茶",
+    "reading": "きっさ",
+    "file": "ja-13.mp3"
+  },
+  {
+    "text": "書店",
+    "reading": "しょてん",
+    "file": "ja-14.mp3"
+  },
+  {
+    "text": "クリーニング",
+    "reading": "クリーニング",
+    "file": "ja-15.mp3"
+  },
+  {
+    "text": "自販機",
+    "reading": "じはんき",
+    "file": "ja-16.mp3"
+  },
+  {
+    "text": "を",
+    "reading": "お",
+    "file": "ja-17.mp3"
+  },
+  {
+    "text": "ください",
+    "reading": "ください",
+    "file": "ja-18.mp3"
+  },
+  {
+    "text": "カップ",
+    "reading": "カップ",
+    "file": "ja-45.mp3"
+  },
+  {
+    "text": "茶葉",
+    "reading": "ちゃば",
+    "file": "ja-46.mp3"
+  },
+  {
+    "text": "お湯",
+    "reading": "おゆ",
+    "file": "ja-47.mp3"
+  },
+  {
+    "text": "注ぐ",
+    "reading": "そそぐ",
+    "file": "ja-48.mp3"
+  },
+  {
+    "text": "洗う",
+    "reading": "あらう",
+    "file": "ja-49.mp3"
+  },
+  {
+    "text": "できました",
+    "reading": "できました",
+    "file": "ja-50.mp3"
+  },
+  {
+    "text": "の",
+    "reading": "の",
+    "file": "ja-19.mp3"
+  },
+  {
+    "text": "に",
+    "reading": "に",
+    "file": "ja-20.mp3"
+  },
+  {
+    "text": "水です",
+    "reading": "水です",
+    "file": "ja-21.mp3"
+  },
+  {
+    "text": "水をください",
+    "reading": "水をください",
+    "file": "ja-22.mp3"
+  },
+  {
+    "text": "水のコーヒー",
+    "reading": "水のコーヒー",
+    "file": "ja-23.mp3"
+  },
+  {
+    "text": "コーヒーを二つください",
+    "reading": "コーヒーを二つください。",
+    "file": "ja-24.mp3"
+  },
+  {
+    "text": "お茶を二つください",
+    "reading": "お茶を二つください",
+    "file": "ja-25.mp3"
+  },
+  {
+    "text": "水を一つください",
+    "reading": "水を一つください",
+    "file": "ja-26.mp3"
+  },
+  {
+    "text": "お茶を一つください",
+    "reading": "お茶を一つください",
+    "file": "ja-27.mp3"
+  },
+  {
+    "text": "コーヒーを一つください",
+    "reading": "コーヒーを一つください。",
+    "file": "ja-28.mp3"
+  },
+  {
+    "text": "お水",
+    "reading": "お水",
+    "file": "ja-29.mp3"
+  },
+  {
+    "text": "お水を一つください",
+    "reading": "お水を一つください。",
+    "file": "ja-30.mp3"
+  },
+  {
+    "text": "お水を二つください",
+    "reading": "お水を二つください。",
+    "file": "ja-31.mp3"
+  },
+  {
+    "text": "ようこそ",
+    "reading": "ようこそ",
+    "file": "ja-32.mp3"
+  },
+  {
+    "text": "よろしくお願いします",
+    "reading": "よろしくお願いします",
+    "file": "ja-33.mp3"
+  },
+  {
+    "text": "駅",
+    "reading": "駅",
+    "file": "ja-34.mp3"
+  },
+  {
+    "text": "コンビニ",
+    "reading": "コンビニ",
+    "file": "ja-35.mp3"
+  },
+  {
+    "text": "無料",
+    "reading": "無料",
+    "file": "ja-36.mp3"
+  },
+  {
+    "text": "みずをください",
+    "reading": "みずをください",
+    "file": "ja-37.mp3"
+  },
+  {
+    "text": "450円ですありがとうございます",
+    "reading": "450円です。ありがとうございます",
+    "file": "ja-38.mp3"
+  },
+  {
+    "text": "200円ですありがとうございます",
+    "reading": "200円です。ありがとうございます",
+    "file": "ja-39.mp3"
+  },
+  {
+    "text": "零円です",
+    "reading": "れいえんです",
+    "file": "ja-40.mp3"
+  },
+  {
+    "text": "三百五十円です",
+    "reading": "さんびゃくごじゅうえんです",
+    "file": "ja-41.mp3"
+  },
+  {
+    "text": "四百五十円です",
+    "reading": "よんひゃくごじゅうえんです",
+    "file": "ja-42.mp3"
+  },
+  {
+    "text": "七百円です",
+    "reading": "ななひゃくえんです",
+    "file": "ja-43.mp3"
+  },
+  {
+    "text": "九百円です",
+    "reading": "きゅうひゃくえんです",
+    "file": "ja-44.mp3"
+  }
+]

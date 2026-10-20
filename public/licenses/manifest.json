@@ -1,0 +1,68 @@
+[
+  {
+    "name": "@dimforge/rapier3d-compat",
+    "version": "0.20.0",
+    "license": "Apache-2.0",
+    "file": "dimforge-rapier3d-compat.txt"
+  },
+  {
+    "name": "@rive-app/canvas-lite",
+    "version": "2.45.0",
+    "license": "MIT",
+    "file": "rive-app-canvas-lite.txt"
+  },
+  {
+    "name": "react",
+    "version": "18.3.1",
+    "license": "MIT",
+    "file": "react.txt"
+  },
+  {
+    "name": "loose-envify",
+    "version": "1.4.0",
+    "license": "MIT",
+    "file": "loose-envify.txt"
+  },
+  {
+    "name": "js-tokens",
+    "version": "4.0.0",
+    "license": "MIT",
+    "file": "js-tokens.txt"
+  },
+  {
+    "name": "react-dom",
+    "version": "18.3.1",
+    "license": "MIT",
+    "file": "react-dom.txt"
+  },
+  {
+    "name": "scheduler",
+    "version": "0.23.2",
+    "license": "MIT",
+    "file": "scheduler.txt"
+  },
+  {
+    "name": "three",
+    "version": "0.186.1",
+    "license": "MIT",
+    "file": "three.txt"
+  },
+  {
+    "name": "HTS Voice Mei (all 50 Japanese clips)",
+    "version": "2009–2013",
+    "license": "CC BY 3.0",
+    "file": "mei-voice.txt"
+  },
+  {
+    "name": "Google Fonts: barlowcondensed",
+    "version": "hosted by Google Fonts",
+    "license": "SIL OFL 1.1",
+    "file": "barlowcondensed-OFL.txt"
+  },
+  {
+    "name": "Google Fonts: notosansjp",
+    "version": "hosted by Google Fonts",
+    "license": "SIL OFL 1.1",
+    "file": "notosansjp-OFL.txt"
+  }
+]

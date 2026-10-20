@@ -1,0 +1,25 @@
+<Rive version="1" kind="fragment">
+  <Artboard width="240" height="52" name="CafeFeedback" id="0:2" styleId="0:5" viewModelId="0:40" viewModelInstanceId="0:42" defaultStateMachineId="0:7">
+    <LayoutComponentStyle name="Artboard Style" id="0:5"/>
+    <Shape x="218" y="25" name="Ready star">
+      <DataBindContext sourcePathIds="0:40-0:41" propertyKey="18" converterId="0:52"/>
+      <Star width="20" height="20" points="5" innerRadius="0.5"/>
+      <Fill><SolidColor colorValue="FFD8BF79"/></Fill>
+    </Shape>
+    <Shape x="18" y="33" name="Tea in cup">
+      <Rectangle width="26" height="14" originY="1" cornerRadiusTL="2"><DataBindContext sourcePathIds="0:40-0:41" propertyKey="21" converterId="0:51"/></Rectangle>
+      <Fill><SolidColor colorValue="FF8CA564"/></Fill>
+    </Shape>
+    <Shape x="18" y="27" name="Porcelain cup"><Rectangle width="34" height="24" cornerRadiusTL="5"/><Fill><SolidColor colorValue="FFF2DFC0"/></Fill></Shape>
+    <Shape x="36" y="26" name="Cup handle"><Ellipse width="14" height="16"/><Fill><SolidColor colorValue="FFF2DFC0"/></Fill></Shape>
+    <Shape x="20" y="42" name="Saucer"><Ellipse width="46" height="5"/><Fill><SolidColor colorValue="FFB9CB92"/></Fill></Shape>
+    <Shape x="58" y="27" name="Progress fill"><Rectangle width="90" height="6" originX="0" cornerRadiusTL="3"><DataBindContext sourcePathIds="0:40-0:41" propertyKey="20" converterId="0:50"/></Rectangle><Fill><SolidColor colorValue="FFB9CB92"/></Fill></Shape>
+    <Shape x="58" y="27" name="Progress track"><Rectangle width="140" height="6" originX="0" cornerRadiusTL="3"/><Fill><SolidColor colorValue="FF4E6251"/></Fill></Shape>
+    <StateMachine name="Service" id="0:7"><StateMachineLayer name="Preparation" id="0:8"><AnyState x="200" y="-120"/><ExitState x="400" y="-120"/><EntryState><StateTransition stateToId="0:12"/></EntryState><AnimationState x="200" animationId="0:6" id="0:12"/></StateMachineLayer></StateMachine>
+    <LinearAnimation duration="60" name="Rest" id="0:6"/>
+  </Artboard>
+  <DataConverterRangeMapper minInput="0" maxInput="1" minOutput="0" maxOutput="140" clampLower="true" clampUpper="true" name="ProgressWidth" id="0:50"/>
+  <DataConverterRangeMapper minInput="0" maxInput="1" minOutput="0" maxOutput="14" clampLower="true" clampUpper="true" name="CupLevel" id="0:51"/>
+  <DataConverterRangeMapper minInput="0.9" maxInput="1" minOutput="0" maxOutput="1" clampLower="true" clampUpper="true" name="ReadyOpacity" id="0:52"/>
+  <ViewModel name="CafeFeedback" defaultInstanceId="0:42" id="0:40"><ViewModelPropertyNumber name="progress" id="0:41"/><ViewModelInstance name="Default" exports="true" id="0:42"><ViewModelInstanceNumber propertyValue="0.6" viewModelPropertyId="0:41"/></ViewModelInstance></ViewModel>
+</Rive>
