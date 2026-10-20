@@ -4,6 +4,7 @@ Prepared for Bryan's Mikanra entry. This pack contains ready-to-use project copy
 
 - [Form copy and supplied links](FORM_COPY.md)
 - [Three-minute demo script](DEMO_SCRIPT.md)
+- [30-second vertical teaser, upload copy and credits](TEASER.md)
 - [Sponsorship brief](SPONSORSHIP.md)
 - [Release and submission status](RELEASE_STATUS.md)
 - [Business assessment and validation plan](../BUSINESS.md)

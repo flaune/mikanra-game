@@ -48,7 +48,7 @@ export class InteractionSystem {
 
   register(interactable: Interactable) { this.interactables.push(interactable); }
 
-  update(camera: THREE.Camera): InteractionResult | null {
+  update(camera: THREE.Camera, preferredId?: string): InteractionResult | null {
     this.scene?.updateMatrixWorld(true);
     camera.getWorldPosition(this.origin);
     camera.getWorldDirection(this.direction);
@@ -73,9 +73,11 @@ export class InteractionSystem {
 
     // Small café stations remain usable when they are just below the crosshair.
     // This still checks a real line of sight, range, and a narrow facing cone.
-    if (!nearest) {
+    if (!nearest || (preferredId && nearest.id !== preferredId)) {
       let bestAngle = Infinity;
+      const assistOnlyPreferred = nearest !== null;
       for (const item of this.interactables) {
+        if (assistOnlyPreferred && item.id !== preferredId) continue;
         if (!item.aimAssist || !visible(item.mesh)) continue;
         this.targetBounds(item.mesh);
         if (this.bounds.isEmpty()) continue;
@@ -88,7 +90,7 @@ export class InteractionSystem {
         const horizontalAngle = Math.abs(Math.atan2(this.aimDirection.x, -this.aimDirection.z) - Math.atan2(this.direction.x, -this.direction.z));
         const wrappedAngle = Math.min(horizontalAngle, Math.PI * 2 - horizontalAngle);
         const angle = this.direction.angleTo(this.aimDirection);
-        if (wrappedAngle > .28 || angle > .8 || angle >= bestAngle) continue;
+        if (wrappedAngle > (item.id === preferredId ? .35 : .28) || angle > .8 || angle >= bestAngle) continue;
         this.raycaster.set(this.origin, this.aimDirection);
         if (this.blocked(item.mesh, distance)) continue;
         nearest = item; nearestDistance = distance; bestAngle = angle;

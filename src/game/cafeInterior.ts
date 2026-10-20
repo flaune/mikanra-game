@@ -4,11 +4,14 @@ import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { makeTextTexture } from './textures';
 import type { BuildResult } from './components';
 import { createAvatar, avatarProfiles } from './avatar';
+import type { Avatar } from './avatar';
+import { COUNTER_SHIFT, COUNTER_TOP, STATIONS } from './cafeLayout';
 
 /** Original Mikan kissaten: all art is local procedural geometry and canvas work. */
-export function buildCafeInterior(): BuildResult {
+export function buildCafeInterior(): BuildResult & { owner: Avatar } {
   const group = new THREE.Group(); group.name = 'cafeInterior';
   const result: BuildResult = { group, colliders: [] };
+  let surface = group;
   let seed = 941;
   const random = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; };
   function texture(kind: 'wood' | 'wall' | 'leather') {
@@ -48,21 +51,21 @@ export function buildCafeInterior(): BuildResult {
   };
   function box(x: number, y: number, z: number, w: number, h: number, d: number, material: THREE.Material, solid = false, radius = 0) {
     const mesh = new THREE.Mesh(radius ? new RoundedBoxGeometry(w, h, d, 2, radius) : new THREE.BoxGeometry(w, h, d), material);
-    mesh.position.set(x, y, z); mesh.castShadow = mesh.receiveShadow = true; group.add(mesh);
+    mesh.position.set(x, y, z); mesh.castShadow = mesh.receiveShadow = true; surface.add(mesh);
     if (material instanceof THREE.MeshStandardMaterial && material.map) {
       const uv = mesh.geometry.getAttribute('uv');
       for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * Math.max(w, d) / 1.6, uv.getY(i) * Math.max(h, d) / 1.6);
     }
-    if (solid) result.colliders.push({ x, y, z, hw: w / 2, hh: h / 2, hd: d / 2 });
+    if (solid) result.colliders.push({ x, y, z: z + surface.position.z, hw: w / 2, hh: h / 2, hd: d / 2 });
     return mesh;
   }
   function cylinder(x: number, y: number, z: number, r: number, h: number, material: THREE.Material, top = r, segments = 20) {
     const mesh = new THREE.Mesh(new THREE.CylinderGeometry(top, r, h, segments), material);
-    mesh.position.set(x, y, z); mesh.castShadow = mesh.receiveShadow = true; group.add(mesh); return mesh;
+    mesh.position.set(x, y, z); mesh.castShadow = mesh.receiveShadow = true; surface.add(mesh); return mesh;
   }
   function sphere(x: number, y: number, z: number, sx: number, sy: number, sz: number, material: THREE.Material) {
     const mesh = new THREE.Mesh(new THREE.SphereGeometry(1, 16, 12), material);
-    mesh.position.set(x, y, z); mesh.scale.set(sx, sy, sz); mesh.castShadow = true; group.add(mesh); return mesh;
+    mesh.position.set(x, y, z); mesh.scale.set(sx, sy, sz); mesh.castShadow = true; surface.add(mesh); return mesh;
   }
   function rod(a: number[], b: number[], r: number, material: THREE.Material) {
     const from = new THREE.Vector3(...a as [number, number, number]), to = new THREE.Vector3(...b as [number, number, number]);
@@ -71,7 +74,7 @@ export function buildCafeInterior(): BuildResult {
     return mesh;
   }
   function torus(x: number, y: number, z: number, r: number, tube: number, material: THREE.Material) {
-    const mesh = new THREE.Mesh(new THREE.TorusGeometry(r, tube, 8, 24), material); mesh.position.set(x, y, z); group.add(mesh); return mesh;
+    const mesh = new THREE.Mesh(new THREE.TorusGeometry(r, tube, 8, 24), material); mesh.position.set(x, y, z); surface.add(mesh); return mesh;
   }
   const textMaterials = new Map<string, THREE.MeshBasicMaterial>();
   function text(text: string, x: number, y: number, z: number, w: number, h: number, options: { bg?: string; color?: string; fontSize?: number; yaw?: number } = {}) {
@@ -83,7 +86,7 @@ export function buildCafeInterior(): BuildResult {
       material = new THREE.MeshBasicMaterial({ map, polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -1 }); textMaterials.set(key, material);
     }
     const mesh = new THREE.Mesh(new THREE.PlaneGeometry(w, h), material);
-    mesh.position.set(x, y, z); mesh.rotation.y = options.yaw ?? 0; group.add(mesh); return mesh;
+    mesh.position.set(x, y, z); mesh.rotation.y = options.yaw ?? 0; surface.add(mesh); return mesh;
   }
   function cup(x: number, y: number, z: number, material = m.cream) {
     cylinder(x, y + .009, z, .106, .018, material);
@@ -131,25 +134,28 @@ export function buildCafeInterior(): BuildResult {
   for (const z of [-3.25, -.9, 1.45, 3.25]) box(0, 3.23, z, 7, .25, .19, m.wood);
   for (const x of [-3.28, 3.28]) box(x, 3.23, 0, .18, .24, 7, m.wood);
 
-  // A long counter with framed cabinetry, polished lip and brass foot rail.
-  box(-.75, .52, -2.23, 4.8, 1.04, .79, m.wood, true, .04);
-  box(-.75, 1.07, -2.23, 4.98, .14, .94, m.wood, false, .045);
-  box(-.75, .99, -1.755, 4.94, .035, .028, m.brass);
+  // Explicit counter assembly: furniture, tools and collision share its transform.
+  const counter = new THREE.Group(); counter.name = 'Service counter';
+  counter.position.z = COUNTER_SHIFT; group.add(counter); surface = counter;
+  box(-.85, .52, -2.23, 4.6, 1.04, .79, m.wood, true, .04);
+  box(-.85, COUNTER_TOP - .07, -2.23, 4.7, .14, .94, m.wood, false, .045);
+  box(-.85, .99, -1.755, 4.65, .035, .028, m.brass);
   for (let x = -2.75; x < 1.5; x += .78) {
     box(x, .52, -1.817, .70, .78, .035, m.trim, false, .014);
     box(x, .52, -1.79, .60, .66, .025, m.wood, false, .01);
   }
   rod([-3, .2, -1.57], [1.6, .2, -1.57], .026, m.brass);
   for (const x of [-2.6, -.8, 1.2]) rod([x, .2, -1.57], [x, .2, -1.82], .022, m.brass);
-  for (const x of [-2.35, -1.23, -.11, 1.01]) {
+  for (const x of [-2.35, -1.23]) {
     cylinder(x, .7, -1.2, .26, .10, m.leather);
     cylinder(x, .64, -1.2, .25, .055, m.trim);
     for (const dx of [-.15, .15]) for (const dz of [-.15, .15]) rod([x + dx, .64, -1.2 + dz], [x + dx * 1.2, .035, -1.2 + dz * 1.2], .028, m.trim);
     torus(x, .28, -1.2, .2, .015, m.brass).rotation.x = Math.PI / 2;
-    result.colliders.push({ x, y: .36, z: -1.2, hw: .25, hh: .36, hd: .25 });
+    result.colliders.push({ x, y: .36, z: -1.2 + COUNTER_SHIFT, hw: .25, hh: .36, hd: .25 });
   }
 
-  // Shelving gives the counter a dense, layered silhouette.
+  surface = group;
+  // A restrained back shelf keeps the preparation surface readable.
   box(-.65, .54, -3.12, 5.4, 1.08, .54, m.trim);
   box(-.65, 1.12, -3.1, 5.45, .07, .59, m.wood);
   box(-1.63, 2.13, -3.37, 3.42, 1.86, .1, m.trim);
@@ -159,8 +165,8 @@ export function buildCafeInterior(): BuildResult {
   }
   for (const x of [-3.32, .06]) box(x, 2.2, -3.12, .075, 1.65, .5, m.wood);
   const jarColors = [m.glass, m.coffee, m.teal];
-  for (let row = 0; row < 3; row++) for (let i = 0; i < 8; i++) {
-    const x = -3.07 + i * .40, y = 1.44 + row * .56, z = -3.04;
+  for (let row = 0; row < 3; row++) for (let i = 0; i < 5; i++) {
+    const x = -3.02 + i * .64, y = 1.44 + row * .56, z = -3.04;
     const h = .24 + ((i + row) % 3) * .045;
     cylinder(x, y + h / 2, z, .115, h, jarColors[(i + row) % 3]);
     cylinder(x, y + h + .018, z, .12, .04, m.brass);
@@ -176,7 +182,9 @@ export function buildCafeInterior(): BuildResult {
   text('自家焙煎  /  EST. 1986', -.8, 3.07, -3.235, 2.6, .18, { bg: '#291c19', color: '#bd9b61', fontSize: 60 });
 
   // Espresso machine faces the staff aisle; its buttons and spouts remain reachable.
-  const machineStart = group.children.length;
+  const machine = new THREE.Group();machine.name='Espresso machine';
+  machine.position.set(STATIONS.coffee[0],0,STATIONS.coffee[1]+.3);group.add(machine);surface=machine;
+  const machineStart = machine.children.length;
   // Espresso machine, drip tray, gauges, steam wand and grinder.
   box(-2.12, 1.42, -2.24, .95, .57, .49, m.burgundy, false, .07);
   box(-2.12, 1.43, -1.982, .88, .36, .035, m.steel, false, .015);
@@ -191,23 +199,15 @@ export function buildCafeInterior(): BuildResult {
   }
   rod([-1.72, 1.44, -1.98], [-1.65, 1.30, -1.85], .009, m.steel);
   for (const x of [-2.4, -2.17, -1.94]) cylinder(x, 1.755, -2.20, .067, .085, m.cream, .051);
-  for (const part of group.children.slice(machineStart)) { part.position.x = -4.24 - part.position.x; part.position.z = -4.48 - part.position.z; part.rotateY(Math.PI); }
-  box(-2.95, 1.29, -2.22, .26, .29, .3, m.black, false, .025);
-  cylinder(-2.95, 1.59, -2.22, .11, .3, m.glass, .17);
-  cylinder(-2.95, 1.75, -2.22, .175, .028, m.black);
-  cup(-1.15, 1.15, -2.02);
-  cup(.95, 1.15, -2.03, m.teal);
-  // Siphons and enamel kettle on the work surface behind the owner.
-  for (const x of [-.45, -.03]) {
-    cylinder(x, 1.16, -3.05, .11, .055, m.black);
-    rod([x, 1.17, -3.05], [x, 1.66, -3.05], .012, m.brass);
-    sphere(x, 1.36, -2.98, .1, .12, .1, m.glass);
-    cylinder(x, 1.60, -2.98, .075, .19, m.glass, .1);
-    cylinder(x, 1.72, -2.98, .102, .025, m.black);
-  }
-  sphere(1.4, 1.27, -3.06, .18, .17, .14, m.cream);
-  torus(1.4, 1.42, -3.06, .13, .02, m.black);
-  rod([1.55, 1.3, -3.06], [1.7, 1.42, -3.06], .035, m.cream);
+  for (const part of machine.children.slice(machineStart)) { part.position.x = -2.12 - part.position.x; part.position.z = -2.24 - part.position.z; part.rotateY(Math.PI); }
+  surface = group;
+  box(STATIONS.grinder[0], 1.29, STATIONS.grinder[1], .26, .29, .3, m.black, false, .025);
+  cylinder(STATIONS.grinder[0], 1.59, STATIONS.grinder[1], .11, .3, m.glass, .17);
+  cylinder(STATIONS.grinder[0], 1.75, STATIONS.grinder[1], .175, .028, m.black);
+  surface = group;
+  // A supported side worktop for washing, outside the staff passage.
+  box(3.04, .53, -2.25, .68, 1.06, 1.4, m.wood, true, .025);
+  box(3.04, COUNTER_TOP - .04, -2.25, .72, .08, 1.44, m.cream, false, .025);
 
   // Booths against the left wall; central aisle remains more than a metre wide.
   for (const z of [.12, 2.05]) {
@@ -327,7 +327,8 @@ export function buildCafeInterior(): BuildResult {
   // The owner uses the same original avatar proportions as the regulars.
   const haru = createAvatar(avatarProfiles.haru);
   haru.group.name = 'Haru';
-  haru.group.position.set(1.75, .12, -3.0);
+  haru.group.position.set(1.2, 0, 2.75);
+  haru.group.rotation.y = -.8;
   haru.setExpression('happy');
   group.add(haru.group);
 
@@ -366,14 +367,6 @@ export function buildCafeInterior(): BuildResult {
   group.add(portrait, portrait.target);
   const front = new THREE.PointLight(0xb5c9cb, 8, 7, 2); front.position.set(.1, 2.3, 2.95); group.add(front);
 
-  // Move the entire counter and its stools toward the room, making a .85 m
-  // service aisle. Geometry and collision proxies use the same displacement.
-  for (const object of group.children) {
-    if (object instanceof THREE.Mesh && object.position.x > -3.2 && object.position.x < 1.8 && object.position.y > .02 && object.position.y < 3.1 && object.position.z >= -2.7 && object.position.z <= -1.0) object.position.z += .65;
-  }
-  for (const collider of result.colliders) {
-    if (collider.z >= -2.7 && collider.z <= -1.0) collider.z += .65;
-  }
   // Merge static geometry per material. Colliders remain deliberately simple.
   group.updateMatrixWorld(true);
   const batches = new Map<THREE.Material, { pieces: THREE.BufferGeometry[]; meshes: THREE.Mesh[] }>();
@@ -394,5 +387,5 @@ export function buildCafeInterior(): BuildResult {
     batch.pieces.forEach(piece => piece.dispose());
   }
   old.forEach(geometry => geometry.dispose());
-  return result;
+  return { ...result, owner: haru };
 }

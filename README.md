@@ -4,9 +4,13 @@
 
 Mikanra is a desktop browser game about preparing drinks, understanding your customers, and becoming part of their neighborhood. At Cafe Mikan, greetings and orders matter because they help you do something for someone you get to know.
 
-![Serving a neighbor at Cafe Mikan](docs/screenshots/cafe-service.jpg)
+The `fix/cafe-flow` branch adds steady workbench preparation, batch housekeeping and repaired customer routes. Its local changes do not replace the tagged public submission release.
+
+![Guided coffee preparation at Cafe Mikan](docs/screenshots/workbench-coffee.jpg)
 
 [Play the current release](https://flaune.github.io/mikanra-game/) · [Original Bolt deployment](https://mikanra-japanese-lea-d6bu.bolt.host/) · [Submission pack](docs/submission/README.md) · [Business assessment](docs/BUSINESS.md)
+
+[Watch the 30-second vertical gameplay teaser](docs/submission/media/mikanra-teaser-30s.mp4). Its workbench footage previews this repair branch; [upload copy and credits](docs/submission/TEASER.md) are included.
 
 The current game is published on GitHub Pages as a free prototype backup. The original Bolt deployment was found to serve an earlier prototype and still needs synchronization through the founder's signed-in Bolt project. Check [release status](docs/submission/RELEASE_STATUS.md) before choosing the contest live link.
 
@@ -32,7 +36,7 @@ npm run dev
 Open the Vite URL in a current desktop browser with WebGL, a keyboard and mouse. Chromium is the primary automated test target. Touch-only devices and viewports narrower than 701 pixels display a desktop notice instead of starting the game. Controller and touch gameplay are not implemented.
 
 ```sh
-npm run check                 # Types, lint, 72 unit/runtime tests, production build
+npm run check                 # Types, lint, 83 unit/runtime tests, production build
 npm run preview               # Serve the production build locally
 npx playwright install chromium
 npm run test:e2e              # Starts its own dev and preview servers; runs browser checks
@@ -50,10 +54,10 @@ Production output is `dist/`. Run `npm run build -- --base=/your-subpath/` for s
 | Walk / look | WASD / mouse or arrow keys |
 | Interact | E |
 | Pour, wash, wipe | Hold E; early release retains manual progress |
-| Tea batch size | 1 or 2 before measuring leaves |
+| Workbench | E near a tool; E/button to act; Escape to step away |
 | Preparation meaning / pronunciation | H / L |
 | Field notes | J |
-| Pause, dismiss, skip arrival | Escape |
+| Pause / dismiss / skip arrival | Escape in exploration; Pause button while working |
 
 The game supports pointer-lock fallback. Notebook settings include Japanese help, romaji, camera motion and picture quality. See [cafe controls](docs/CONTROLS.md) and [Chapter One](docs/CHAPTER_ONE.md) for the full loop.
 

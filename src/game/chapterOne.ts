@@ -1,4 +1,4 @@
-import { actService, freshService, readService, trayVessels, transferTray, completeVisit, closingStep, nextServiceStep } from './cafeService';
+import { actService, freshService, readService, trayVessels, transferTray, completeVisit, closingStep, nextServiceStep, guidedStep } from './cafeService';
 import type { CafeService, ServiceAction, Drink } from './cafeService';
 export type { Drink } from './cafeService';
 export type Stage = 'briefing' | 'order' | 'brew' | 'serve' | 'pay' | 'report' | 'done';
@@ -170,16 +170,17 @@ export function actShift(state: Shift, action: ShiftAction): { state: Shift; mes
   const customer = getCustomer(state);
   if (action.type === 'service') {
     const recipeActive = ['brew','serve'].includes(state.stage);
-    const housekeeping = action.action.type === 'station' && ['sink','pantry','wipe','return'].includes(action.action.station);
+    const housekeeping = (action.action.type === 'station' && ['sink','pantry','wipe','return'].includes(action.action.station)) || (action.action.type === 'guided' && action.action.mode !== undefined && action.action.mode !== 'recipe');
     const continuingWork = ['tick','release'].includes(action.action.type);
     if (!recipeActive && (state.stage === 'done' || (!housekeeping && !continuingWork))) return { state, message: 'Confirm an order before preparing drinks.' };
-    const result = actService(state.service ?? readService(null, state.tray, state.trayQuality), action.action, validDay(state.day));
+    const serviceAction = action.action.type === 'guided' ? { ...action.action, drink: customer.drink, count: customer.count as 1 | 2 } : action.action;
+    const result = actService(state.service ?? readService(null, state.tray, state.trayQuality), serviceAction, validDay(state.day));
     if (result.state === state.service) return { state, message: result.message };
     const cups = trayVessels(result.state);
     return { state: { ...state, service: result.state, tray: cups.map(cup => cup.drink!), trayQuality: cups.map(cup => cup.perfect === true) }, message: result.message, word: result.word };
   }
 
-  if (state.stage === 'briefing' && action.type === 'hire') return { state: { ...state, hired: true }, message: 'Haru hands you an apron. Walk around the right end of the counter and meet him at the register.' };
+  if (state.stage === 'briefing' && action.type === 'hire') return { state: { ...state, hired: true }, message: 'Haru hands you an apron. Walk around the right end of the counter and use the register to open the cafe.' };
   const mistake = () => ({ ...state, mistakes: state.mistakes + 1, customerMistakes: (state.customerMistakes ?? 0) + 1 });
   if (['order','brew','serve','pay'].includes(state.stage) && state.greeted && !state.chatted && action.type === 'chat') {
     const reply = customerConversation(state).replies[action.reply];
@@ -257,7 +258,7 @@ export function serviceGuide(state: Shift) {
   const customer = getCustomer(state);
   if (state.stage === 'briefing') return state.hired || validDay(state.day) > 1
     ? { step: -1, target: 'shift-register', title: 'Walk around the counter and open the café', hint: 'Use the gap at the right end. Look at the register and press E.' }
-    : { step: -1, target: 'barista', title: 'Talk to Haru about the job', hint: 'Walk toward the owner behind the counter. Look at him and press E.' };
+    : { step: -1, target: 'barista', title: 'Talk to Haru about the job', hint: 'Haru is by the reading corner. Look at him and press E.' };
   if (state.stage === 'order') return state.greeted
     ? { step: 1, target: 'shift-customer', title: `Listen to ${customer.name}’s order`, hint: 'Press E to talk. Listen, choose the drink and cups, then repeat the order.' }
     : { step: 0, target: 'shift-customer', title: `Welcome ${customer.name}`, hint: 'Look at your customer and press E. Say a greeting to begin.' };
@@ -265,8 +266,8 @@ export function serviceGuide(state: Shift) {
     const wrongTray = state.tray.some(drink => drink !== customer.drink) || state.tray.length > customer.count;
     if (wrongTray) return { step: 2, target: 'shift-return', title: 'Return the extra or incorrect cups', hint: 'Press E at Return tray, empty it, then prepare your confirmed order again.' };
     if (state.tray.length < customer.count && state.service) {
-      const task = nextServiceStep(state.service, state.ticket?.drink ?? customer.drink, validDay(state.day));
-      return { step: 2, target: `shift-${task.station}`, title: task.label, hint: task.waiting ? 'Brewing continues while you tidy. There is no time penalty.' : `${task.hold ? 'Hold' : 'Press'} E · ${task.japanese}` };
+      const task = guidedStep(state.service, state.ticket?.drink ?? customer.drink, customer.count, validDay(state.day)) ?? nextServiceStep(state.service,customer.drink,validDay(state.day));
+      return { step: 2, target: `shift-${task.station}`, title: task.label, hint: task.waiting ? 'Brewing continues while you tidy. There is no time penalty.' : 'Press E at a work area for guided preparation.' };
     }
     if (state.tray.length < customer.count) return { step: 2, target: `shift-${customer.drink}`, title: `Prepare ${customer.count - state.tray.length} more ${customer.drink} ${customer.count - state.tray.length === 1 ? 'cup' : 'cups'}`, hint: 'Hold E to fill. Release in the green zone for a perfect pour, or keep holding for a regular cup.' };
     return { step: 3, target: 'shift-customer', title: `Serve your tray to ${customer.name}`, hint: 'Walk to your customer, press E, and offer the tray with どうぞ (dōzo).' };
@@ -274,7 +275,7 @@ export function serviceGuide(state: Shift) {
   if (state.stage === 'pay') return { step: 4, target: 'shift-register', title: 'Finish the visit at the register', hint: 'Press E at the till. Read the price, return change, and thank your customer.' };
   if (state.stage === 'report' && state.service && validDay(state.day) >= 2) {
     const task = closingStep(state.service);
-    if (task) return { step: 5, target: `shift-${task.station}`, title: task.label, hint: `${task.hold ? 'Hold' : 'Press'} E · Put the café to bed before reviewing the till.` };
+    if (task) return { step: 5, target: `shift-${task.station}`, title: task.label, hint: 'Press E at the cleanup work area, then follow the closing steps.' };
   }
   if (state.stage === 'report') return { step: 5, target: 'shift-register', title: 'All three customers served — close the café', hint: 'Press E at the register to talk to Haru and finish today’s shift.' };
   return { step: 5, target: 'shift-register', title: validDay(state.day) === CHAPTER_DAYS ? 'Chapter One complete · Chapter Two coming soon' : 'Shift complete. Your next morning is waiting.', hint: state.chapterCompleted ? 'Press E at the register to keep running the café in free play, or explore the lane.' : 'Press E at the register to come back tomorrow, or explore the lane.' };

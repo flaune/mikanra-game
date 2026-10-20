@@ -27,7 +27,7 @@ const menu: { id: Drink; label: string; reading: string }[] = [
 const say = (text: string) => { void pronounce(text).finished.catch(() => {}); };
 const morningGuidance = (day: number) => [
   'Today I’ll guide each recipe and handle the returned cups. Take your time with the kettle, teapot, coffee machine, and pitcher.',
-  'Today the returned cups are yours to wash. Four reusable vessels are enough: wash one while the kettle heats or the tea steeps.',
+  'Today the returned cups are yours to wash. Four reusable vessels are enough: wash the returned cups together at the cleanup workbench while the kettle heats or the tea steeps.',
   'Today you manage the tea leaves and coffee beans too. The pantry has free refills. Check stock and wash cups while a drink brews.',
   'You know the routine now. Familiar Japanese meanings will fade as you use them. Kana and listening stay available, and you can reveal any meaning.',
   'Our reading evening is getting close. A neighbor may wait behind your customer. Finish one ticket at a time; nobody is in a hurry.',
@@ -86,7 +86,7 @@ export default function ShiftPanel({ target, shift, progress, notesOpen, onChang
     } else if (target === 'barista') content = box('Haru', 'Your apron is on the hook. Follow the green marker around the right end of the counter to the register. We’ll learn the Japanese for each task as we work: welcome, order, prepare, serve, and payment.', <button onClick={onPractice}>Practice a few words</button>, onClose, 'Put on your apron');
     else content = box('Haru', `${dayStory(shift.day ?? 1).title}\n${dayStory(shift.day ?? 1).arrival}\n${morningGuidance(shift.day ?? 1)}\nReady? Open the café and welcome your first customer.`, undefined, () => { act({ type: 'begin' }); onClose(); }, 'Open the café');
   } else if (target === 'barista') {
-    content = box('Haru', message || `${morningGuidance(shift.day ?? 1)}\n${shift.stage === 'order' ? 'Welcome them with 「いらっしゃいませ」. Listen for the drink and number of cups. Take a moment to chat if you like. Asking for help never costs friendship.' : ['brew', 'serve'].includes(shift.stage) ? 'Follow the recipe at the counter. Tea needs leaves and hot water, then time to steep. Coffee needs grinding, tamping and extraction. Use a clean cup and move finished drinks onto your tray.' : 'Choose the bill and count out change at the register. Water is free; just thank your customer.'}`, <><button onClick={() => act({ type: 'help' })}>Help with this order</button><button onClick={onPractice}>Practice words</button></>, onClose, 'Thanks, Haru');
+    content = box('Haru', message || `${morningGuidance(shift.day ?? 1)}\n${shift.stage === 'order' ? 'Welcome them with 「いらっしゃいませ」. Listen for the drink and number of cups. Take a moment to chat if you like. Asking for help never costs friendship.' : ['brew', 'serve'].includes(shift.stage) ? 'Press E near a preparation tool to settle at the workbench. Follow its next action to grind, brew or pour. Clean cups and the serving tray are handled for you. Escape steps away; your progress stays.' : 'Choose the bill and count out change at the register. Water is free; just thank your customer.'}`, <><button onClick={() => act({ type: 'help' })}>Help with this order</button><button onClick={onPractice}>Practice words</button></>, onClose, 'Thanks, Haru');
   } else if (target === 'shift-return') {
     content = box('Return station', message || `There are ${shift.tray.length} cups on your tray. You can empty it here and try again.`, shift.tray.length ? <button onClick={() => { act({ type: 'clear' }); onClose(); }}>Return the cups</button> : undefined, onClose, 'Back to work');
   } else if (shift.stage === 'order') {
@@ -110,7 +110,7 @@ export default function ShiftPanel({ target, shift, progress, notesOpen, onChang
         onUse(customer.drink, drink === customer.drink, supported(customer.drink));
         onUse(customer.count === 2 ? 'two' : 'one', count === customer.count, supported(customer.count === 2 ? 'two' : 'one'));
         const result = act({ type: 'take-order', drink, count, assisted: assistIds });
-        if (result.state.stage === 'brew') setNotice(`They nod. Your order ticket is ready. Follow the green marker through the recipe. Take clean cups, brew the drink, and put each finished cup on your tray. Then bring the tray back here.`);
+        if (result.state.stage === 'brew') setNotice(`They nod. Your order ticket is ready. Press E at a work area and follow the guided recipe. Clean cups are placed for you and finished drinks move onto your tray. Escape steps away, then bring the tray back here.`);
 
       }}>Repeat the order</button>
       {chatButton}
@@ -118,7 +118,7 @@ export default function ShiftPanel({ target, shift, progress, notesOpen, onChang
       {message && <p className="jrpg-feedback" role="status">{message}</p>}
     </>, undefined, undefined, customer.line);
   } else if (['brew', 'serve'].includes(shift.stage)) {
-    content = box(customer.name, message || (shift.tray.length ? `You bring ${shift.tray.length} ${shift.tray.length === 1 ? 'cup' : 'cups'} to the counter. 「${customer.line}」` : `「${customer.line}」\nThey wait while you prepare the drinks. Follow the recipe marker to brew the drink, pour into clean cups, and place them on your tray.`), target === 'shift-customer' && shift.tray.length ? <>
+    content = box(customer.name, message || (shift.tray.length ? `You bring ${shift.tray.length} ${shift.tray.length === 1 ? 'cup' : 'cups'} to the counter. 「${customer.line}」` : `「${customer.line}」\nThey wait while you prepare the drinks. Press E at a work area to prepare the order. Your finished drinks move onto the tray automatically.`), target === 'shift-customer' && shift.tray.length ? <>
       <p className="order-instruction">What will you say as you offer the tray?</p>
       {supported('serve') && <div className="phrase-hint"><JapaneseWord id="serve" progress={progress} revealed={supported('serve')} /><SpeakButton text="どうぞ" autoPlay /></div>}
       {[{ id: 'excuse', phrase: 'すみません' }, { id: 'serve', phrase: 'どうぞ' }, { id: 'welcome', phrase: 'いらっしゃいませ' }].map(({ id, phrase }) => <button key={id} onClick={() => {

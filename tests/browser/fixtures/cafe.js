@@ -1,3 +1,4 @@
+import { BENCHES, benchForStation, CAFE_ORIGIN } from '/src/game/cafeLayout.ts';
 if (!import.meta.env.DEV) throw new Error('The QA fixture is development-only.');
 // Development-only QA page. Never imported by the shipped game.
 // Use localhost, separate from the player's save at 127.0.0.1.
@@ -55,15 +56,17 @@ button('Final evening fixture', () => {
 });
 button('Enter café', () => { engine.finishArrival(); engine.enterCafe(); engine.beginPlay('mouse'); qa.open = false; });
 function aim(id) {
-  qa.open = false;
-  const target = engine.worldData.interactables.find(t => t.id === id);
-  const p = target.mesh.getWorldPosition(engine.position.clone());
-  engine.position.set(p.x, .03, id === 'shift-customer' ? p.z - 1.25 : id === 'barista' ? p.z + 1.35 : p.z - .85);
-  engine.motor.teleport(engine.position); engine.resetMovement();
-  engine.yaw = id === 'barista' ? 0 : Math.PI; engine.pitch = id === 'barista' ? 0 : -.28;
-  engine.beginPlay('mouse');
-  engine.camera.position.copy(engine.position); engine.camera.position.y += 1.66;
-  engine.camera.rotation.set(engine.pitch, engine.yaw, 0);
+  qa.open=false;
+  const target=engine.worldData.interactables.find(t=>t.id===id);
+  const p=target.mesh.getWorldPosition(engine.position.clone());
+  const station=id.replace('shift-',''),anchor=BENCHES[benchForStation(station)];
+  if(id==='barista')engine.position.set(100,.03,102);
+  else if(['shift-customer','shift-register'].includes(id))engine.position.set(p.x,.03,97.6);
+  else engine.position.set(anchor.position[0]+CAFE_ORIGIN,.03,anchor.position[2]+CAFE_ORIGIN);
+  engine.motor.teleport(engine.position);engine.resetMovement();
+  engine.yaw=Math.atan2(engine.position.x-p.x,engine.position.z-p.z);
+  engine.pitch=Math.atan2(1.43-1.69,Math.hypot(p.x-engine.position.x,p.z-engine.position.z));engine.beginPlay('mouse');
+  engine.camera.position.copy(engine.position);engine.camera.position.y+=1.66;engine.camera.rotation.set(engine.pitch,engine.yaw,0);
 }
 for (const id of ['barista', 'shift-register', 'shift-customer', 'shift-coffee', 'shift-tea', 'shift-water', 'shift-return','shift-cups','shift-kettle','shift-grinder','shift-tray','shift-sink','shift-pantry','shift-wipe']) button('Aim ' + id, () => aim(id));
 window.mikanraQA = { get engine() { return engine; }, shift, aim, getCustomer, newShift, freshService, nextServiceStep, closingStep, save };

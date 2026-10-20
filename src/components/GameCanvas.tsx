@@ -1,7 +1,8 @@
+import type { Workbench } from '@/game/cafeLayout';
+import type { WorkMode } from '@/game/cafeService';
 import CafeWork from './CafeWork';
 import { preparationWords, recordUse, wordHelp } from '@/game/learning';
 import type { ServiceAction } from '@/game/cafeService';
-import type { ShiftAction } from '@/game/chapterOne';
 import { useEffect, useRef, useState, useCallback } from "react";
 import { GameEngine } from "@/game/engine";
 import type { InteractionResult } from "@/game/interaction";
@@ -47,6 +48,8 @@ function GameCanvas({ suspended }: { suspended: boolean }) {
   const infoDialogRef = useRef<HTMLDialogElement>(null);
   const [locked, setLocked] = useState(false);
   const [playing, setPlaying] = useState(false);
+  const [workbench,setWorkbench]=useState<Workbench|null>(null);
+  const [workMode,setWorkMode]=useState<WorkMode>('recipe');
   const [freeMouseLook, setFreeMouseLook] = useState(false);
   const [phase, setPhase] = useState<'title' | 'arrival' | 'game'>('title');
   const [muted, setMuted] = useState(false);
@@ -102,12 +105,13 @@ function GameCanvas({ suspended }: { suspended: boolean }) {
 
   useEffect(() => {
     if (!containerRef.current) return;
-    setPhase('title'); setReady(false); setPlaying(false); setLocked(false);
+    setWorkbench(null);setPhase('title'); setReady(false); setPlaying(false); setLocked(false);
     setLocation('street');
     setShiftTarget(null); setPanel(null); setServiceMessage(''); setDirection(null);
     setDialogueActive(false); setDialogueNode(null); setInfo(null); setInteraction(null); setError(null);
 
     const engine = new GameEngine(containerRef.current, {
+      onWorkbench: (area,mode) => {setWorkbench(area);setWorkMode(mode);},
       onReady: () => setReady(true),
       onLockChange: (isLocked) => setLocked(isLocked),
       onPlayChange: setPlaying,
@@ -210,18 +214,18 @@ function GameCanvas({ suspended }: { suspended: boolean }) {
         onSettings={settings => setProgress(previous => ({ ...previous, ...settings }))}
         onClose={() => { setPanel(null); if (!shiftTarget) engineRef.current?.closeStudy(); }} />}
 
-      {phase === 'game' && playing && location === 'cafe' && <CafeWork key={`${shift.day}-${shift.customer}`} shift={shift} progress={progress} onAction={(action: ShiftAction) => { if (action.type === 'service') serviceAction(action.action); }} />}
+      {phase === 'game' && playing && location === 'cafe' && !panel && <CafeWork key={`${shift.day}-${shift.customer}`} shift={shift} progress={progress} area={workbench} mode={workMode} onInput={(held,key)=>engineRef.current?.workbenchInput(held,key)} onMode={mode=>engineRef.current?.setWorkbenchMode(mode)} onExit={()=>engineRef.current?.leaveWorkbench()} />}
       {phase === 'game' && playing && serviceMessage && <div className="service-toast" role="status">{serviceMessage}</div>}
-      {phase === 'game' && playing && location === 'cafe' && ['brew','serve','pay'].includes(shift.stage) && <div className="order-ticket"><span>{getCustomer(shift).name.toUpperCase()}’S ORDER / ご注文</span><p lang="ja">{getCustomer(shift).line}</p><small>{wordHelp(progress,getCustomer(shift).drink).romaji || wordHelp(progress,getCustomer(shift).count === 2 ? 'two' : 'one').romaji ? getCustomer(shift).romaji : 'Listen, then match your tray.'}</small><SpeakButton text={getCustomer(shift).line} />{(shift.translated ?? shift.helped) && <p className="ticket-meaning">{getCustomer(shift).translation}</p>}{shift.stage !== 'pay' && <div className="ticket-tray"><b>Tray · {shift.tray.length} / {getCustomer(shift).count} cups</b><small>{shift.tray.length ? shift.tray.join(' · ') : 'Empty — fill a cup at the marked station'}</small></div>}</div>}
+      {phase === 'game' && playing && !workbench && location === 'cafe' && ['brew','serve','pay'].includes(shift.stage) && <div className="order-ticket"><span>{getCustomer(shift).name.toUpperCase()}’S ORDER / ご注文</span><p lang="ja">{getCustomer(shift).line}</p><small>{wordHelp(progress,getCustomer(shift).drink).romaji || wordHelp(progress,getCustomer(shift).count === 2 ? 'two' : 'one').romaji ? getCustomer(shift).romaji : 'Listen, then match your tray.'}</small><SpeakButton text={getCustomer(shift).line} />{(shift.translated ?? shift.helped) && <p className="ticket-meaning">{getCustomer(shift).translation}</p>}{shift.stage !== 'pay' && <div className="ticket-tray"><b>Tray · {shift.tray.length} / {getCustomer(shift).count} cups</b><small>{shift.tray.length ? shift.tray.join(' · ') : 'Empty — fill a cup at the marked station'}</small></div>}</div>}
       {/* Crosshair */}
-      {phase === 'game' && playing && !dialogueActive && (
+      {phase === 'game' && playing && !workbench && !dialogueActive && (
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none">
           <div className="w-1.5 h-1.5 rounded-full bg-white/40" />
         </div>
       )}
 
       {/* Interaction prompt */}
-      {phase === 'game' && playing && interaction && !dialogueActive && (
+      {phase === 'game' && playing && !workbench && interaction && !dialogueActive && (
         <div className="absolute bottom-24 left-1/2 -translate-x-1/2 pointer-events-none">
           <div className="flex items-center gap-3 px-5 py-3 rounded-lg bg-black/70 backdrop-blur-sm border border-white/15">
             <kbd className="px-2.5 py-1 rounded-md bg-white/15 text-white text-sm font-semibold font-mono">
@@ -293,14 +297,14 @@ function GameCanvas({ suspended }: { suspended: boolean }) {
       {phase === 'game' && ready && playing && !dialogueActive && !info && (
         <>
         <div className="street-location pointer-events-none"><span className="mikan-mark">✳</span><div>{location === 'cafe' ? '喫茶 みかん' : 'みかん小路'}<small>{location === 'cafe' ? 'CAFÉ MIKAN' : 'MIKAN LANE'}</small></div></div>
-        <div className="rail-objective pointer-events-none" hidden={location === 'cafe' && (['brew','serve','report'].includes(shift.stage) || !!shift.service?.manual)}><span>{isFreePlay(shift) ? `CAFÉ DAY ${shift.day} · FREE PLAY` : `CH. 1 · DAY ${shift.day ?? 1} / ${CHAPTER_DAYS}`} <b>{servedCount} / 3 SERVED</b></span><p>{lessonObjective}</p>{location === 'cafe' && <>
+        <div className="rail-objective pointer-events-none" hidden={!!workbench || location === 'cafe' && (['brew','serve','report'].includes(shift.stage) || !!shift.service?.manual)}><span>{isFreePlay(shift) ? `CAFÉ DAY ${shift.day} · FREE PLAY` : `CH. 1 · DAY ${shift.day ?? 1} / ${CHAPTER_DAYS}`} <b>{servedCount} / 3 SERVED</b></span><p>{lessonObjective}</p>{location === 'cafe' && <>
           {guide.step >= 0 && guide.step < 5 && <ol className="service-checklist" aria-label="Customer service steps">{['Welcome', 'Order', 'Prepare', 'Serve', 'Payment'].map((step, index) => <li key={step} aria-current={index === guide.step ? 'step' : undefined} className={index < guide.step ? 'complete' : ''}>{index < guide.step ? '✓' : index + 1} {step}</li>)}</ol>}
           <small className="service-guide-hint">{guide.hint}</small>
           <small className={`cafe-goal${goal.complete ? ' achieved' : ''}`}>{goal.complete ? '✦' : '◇'} {goal.label} · {goal.value}/{goal.target}<b>Tips ¥{shift.tips ?? 0}</b></small>
           {direction && <div className="service-direction"><span aria-hidden="true" style={{ transform: `rotate(${direction.bearing}deg)` }}>↑</span><small>{direction.route ? 'Around the right end of the counter' : direction.distance < 1.4 ? 'Your next task is close by' : Math.abs(direction.bearing) > 100 ? 'Turn around toward the green marker' : direction.bearing < -25 ? 'Look left toward the green marker' : direction.bearing > 25 ? 'Look right toward the green marker' : 'Follow the green marker'}<b>{direction.distance.toFixed(1)} m</b></small></div>}
         </>}<div className="stamp-track">{customers.map((customer, i) => <i key={customer.name} className={i < servedCount ? 'earned' : ''} />)}</div></div>
         <div className="play-tools"><button onClick={openNotebook}><kbd>J</kbd> Field notes <span>{Object.keys(progress.memories).length}</span></button><button onClick={() => engineRef.current?.pause()}>Ⅱ <span>Pause</span></button></div>
-        <div className="rail-game-hint pointer-events-none">WASD · Walk <span>Mouse / Arrows · Look</span> E · Interact <span>J · Field notes</span></div>
+        <div hidden={!!workbench} className="rail-game-hint pointer-events-none">WASD · Walk <span>Mouse / Arrows · Look</span> E · Interact <span>J · Field notes</span></div>
         </>
       )}
 
