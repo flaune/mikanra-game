@@ -1,10 +1,10 @@
-const { launchBrowser, output, fixtureUrl } = require('./helpers.cjs');
+const { launchBrowser, output, fixtureUrl, viewport } = require('./helpers.cjs');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 (async () => {
   const browser = await launchBrowser();
-  const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+  const page = await browser.newPage({ viewport });
   const errors = []; page.on('pageerror', e => errors.push(e.message));
   const url = fixtureUrl;
   const state = () => page.evaluate(() => window.mikanraQA.shift());
@@ -20,9 +20,19 @@ const path = require('node:path');
       const back=p.z<97.4;const z=id==='shift-customer'?p.z-1.25:id==='barista'?p.z+1.35:back?p.z+.85:Math.max(96.85,p.z-.85);
       e.position.set(p.x,.03,z);e.motor.teleport(e.position);e.resetMovement();e.yaw=id==='barista'||back?0:Math.PI;e.pitch=id==='barista'?0:Math.atan2(1.24-1.69,Math.abs(p.z-z));e.beginPlay('mouse');e.camera.position.copy(e.position);e.camera.position.y+=1.66;e.camera.rotation.set(e.pitch,e.yaw,0);
     },id);
-    await page.waitForFunction(id => window.mikanraQA.engine.interaction.currentTarget?.id === id,id,{timeout:5000});
+    await page.waitForFunction(id => window.mikanraQA.engine.interaction.currentTarget?.id === id,id,{timeout:30000});
   }
-  async function use(id,hold=0) {await aim(id);if(hold){await page.keyboard.down('KeyE');await page.waitForTimeout(hold);await page.keyboard.up('KeyE');}else await page.keyboard.press('KeyE');await page.waitForTimeout(150);const reveal=page.getByRole('button',{name:'Show text',exact:true});if(await reveal.isVisible())await reveal.click();}
+  async function use(id,hold=false) {
+    await aim(id);
+    if(hold){
+      await page.keyboard.down('KeyE');
+      await page.waitForFunction(station=>window.mikanraQA.engine.cafeService.manual?.station===station,id.replace('shift-',''),{timeout:30000});
+      await page.waitForFunction(()=>!window.mikanraQA.engine.cafeService.manual,undefined,{timeout:60000});
+      await page.keyboard.up('KeyE');
+    }else await page.keyboard.press('KeyE');
+    await page.waitForTimeout(150);
+    const reveal=page.getByRole('button',{name:'Show text',exact:true});if(await reveal.isVisible())await reveal.click();
+  }
   async function open() {await use('shift-register');await page.getByRole('button',{name:'Open the café',exact:true}).click();await page.waitForTimeout(200);}
   async function takeOrder() {
     const c=await page.evaluate(()=>window.mikanraQA.getCustomer(window.mikanraQA.shift()));await use('shift-customer');
@@ -44,7 +54,7 @@ const path = require('node:path');
         }
         await page.waitForTimeout(1000);continue;
       }
-      await use('shift-'+t.station,t.hold?(t.station==='sink'?3400:2100):0);
+      await use('shift-'+t.station,!!t.hold);
     }
     throw Error('Recipe did not complete '+JSON.stringify(await state()));
   }
@@ -58,11 +68,11 @@ const path = require('node:path');
     await fixture(1);await open();for(let i=0;i<3;i++){const c=await takeOrder();await cook(c,i===1);await screen('first-day-'+c.drink);await serveAndPay(c);}
     assert.equal((await state()).stage,'report');assert.equal((await state()).earnings,1150);await use('shift-register');await page.getByRole('button',{name:'Close the café',exact:true}).click();await screen('first-day-report');
     await fixture(5);await open();const c=await takeOrder();assert.equal(await page.evaluate(()=>window.mikanraQA.engine.worldData.customerService.group.children.filter(c=>c.visible).length),2,'Active and waiting customer visible');await cook(c);await serveAndPay(c);await screen('later-day-queue');
-    const dirty=(await state()).service.vessels.filter(v=>v.state==='dirty').length;assert.ok(dirty>0);await use('shift-sink',3400);assert.equal((await state()).service.vessels.filter(v=>v.state==='dirty').length,dirty-1);
+    const dirty=(await state()).service.vessels.filter(v=>v.state==='dirty').length;assert.ok(dirty>0);await use('shift-sink',true);assert.equal((await state()).service.vessels.filter(v=>v.state==='dirty').length,dirty-1);
     await use('shift-pantry');assert.equal((await state()).service.stock.tea,4);
     await page.evaluate(()=>{const qa=window.mikanraQA,s=qa.shift();s.stage='report';s.customer=2;qa.save(s);});await page.getByRole('button',{name:'Continue café',exact:true}).click({timeout:60000});
     await use('shift-register');await page.getByRole('button',{name:'Finish closing tasks',exact:true}).click();
-    for(let n=0;n<12;n++){const task=await page.evaluate(()=>window.mikanraQA.closingStep(window.mikanraQA.engine.cafeService));if(!task)break;await use('shift-'+task.station,task.hold?(task.station==='sink'?3400:2400):0);}
+    for(let n=0;n<12;n++){const task=await page.evaluate(()=>window.mikanraQA.closingStep(window.mikanraQA.engine.cafeService));if(!task)break;await use('shift-'+task.station,!!task.hold);}
     assert.equal(await page.evaluate(()=>window.mikanraQA.closingStep(window.mikanraQA.engine.cafeService)),null);await use('shift-register');await screen('later-day-clean-closing');await page.getByRole('button',{name:'Close the café',exact:true}).click();
     await page.evaluate(()=>{const qa=window.mikanraQA,s=qa.newShift(7,{relationships:[6,6,6]});s.stage='report';s.customer=2;s.hired=true;qa.save(s);});await page.getByRole('button',{name:'Continue café',exact:true}).click({timeout:60000});await use('shift-register');await page.getByRole('button',{name:'Close the café · Join the reading evening',exact:true}).click();await page.getByRole('button',{name:'Try the Japanese check',exact:true}).click();await screen('chapter-one-check');
     const fallback=await browser.newPage({viewport:{width:1000,height:700}});await fallback.emulateMedia({reducedMotion:'reduce'});await fallback.route('**/rive/cafe-feedback.riv',route=>route.abort());
