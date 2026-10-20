@@ -1,0 +1,8 @@
+{
+  "name": "mikanra-teaser-tools",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Isolated offline cinematic capture tools; not a game dependency.",
+  "license": "UNLICENSED",
+  "devDependencies": { "gsap": "3.15.0" }
+}
