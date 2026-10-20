@@ -1,0 +1,9 @@
+@font-face{font-family:Outfit;src:url('/scripts/teaser/assets/Outfit.ttf') format('truetype');font-weight:100 900;font-display:block}
+body *{visibility:hidden!important}
+#film-canvas,.film-title,.film-title *{visibility:visible!important}
+body{margin:0;overflow:hidden;background:#35271e}
+.film-title{position:fixed;z-index:1000;left:96px;width:768px;color:#fff6e7;font-family:Outfit,Arial,sans-serif;pointer-events:none;text-align:center;opacity:0;text-shadow:0 2px 18px #24170c99}
+.film-opening{top:320px;font-size:78px;font-weight:500;line-height:1.12;letter-spacing:-2px}
+.film-ending{top:1190px;display:flex;flex-direction:column;align-items:center;gap:12px}
+.film-ending strong{font-size:128px;font-weight:500;line-height:1.1;letter-spacing:-4px}
+.film-ending span{font-size:38px;font-weight:400;letter-spacing:.3px}

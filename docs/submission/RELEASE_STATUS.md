@@ -4,11 +4,19 @@
 
 Mikanra 0.1.0, public-source publication target: https://github.com/flaune/mikanra-game. Original code and artwork retain all rights reserved. Third-party notices ship with the game.
 
-## Café repair branch and teaser
+## Current café release on Vercel
 
-`fix/cafe-flow` contains the subsequent usability repair and [30-second portrait teaser](TEASER.md). Its 83 unit/runtime/audio tests, types, lint and production build pass. Browser checks pass at 1440×900 and 1000×700, including a new journey that walks from the entrance to preparation, service and cleanup using ordinary controls. See [repair details](../CAFE_REPAIR.md). The original release verification below records the tagged 72-test build; the repair branch does not move either frozen tag or replace the public deployment. Review and publish the repair before using its workbench footage as the live demo's current behavior.
+[PR #1](https://github.com/flaune/mikanra-game/pull/1) is merged into `main` at **`4fe8a279e771b37c5bd9908ab7265c0983e455a4`**. Its [release workflow passed](https://github.com/flaune/mikanra-game/actions/runs/39494757898): clean `npm ci`, types, lint, all **83 unit/runtime/audio tests**, audit, production build and the complete browser suite. Browser checks include 1440×900 and 1000×700 layouts, ordinary walking through preparation/service/cleanup, later-day management, finale and continuation into day eight. See [repair details](../CAFE_REPAIR.md).
 
-## Local verification completed
+The current free desktop demo is **https://mikanra-game.vercel.app/**, in the new `mikanra-game` Vercel project. Production deployment **`dpl_D8YgJiesxVgube5P7BNecjSiD5tx`** was built directly from that exact GitHub SHA, staged, checked anonymously, and promoted without rebuilding. Its immutable URL is https://mikanra-game-7gol3y8vo-frans-projects-08724d0a.vercel.app/.
+
+Public checks cover startup, local audio/Rive/license/social assets, arrival skipping, mobile notice, absence of QA globals/controls, Japanese audio decoding and playback, ordinary walking to the work area, guided tea preparation, service to Aoi, and save restoration after reload. Vercel uses Node 24.x, Vite, root installation, `npm ci`, `npm run build`, and `dist`. It has no application secrets, automatic Git deployment connection or Vercel login requirement. Later production promotions remain manual through October 31; see [deployment instructions](../DEPLOYMENT.md).
+
+The [new teaser](TEASER.md) follows one tea order using isolated GSAP tooling, full-screen portrait scene captures, original music/effects and the attributed Mei order recording. Only the opening and closing titles are added. The master is 30 seconds, 1080×1920, 30 fps, H.264/AAC; full decode and encoded audio peak checks pass. Tooling and documentation are on `improve/teaser-launch`; deploying the game does not depend on merging those media-only changes.
+
+The older `mikanra_test` Vercel site, GitHub Pages deployment, private `flaune/mikanra` repository and frozen tags remain unchanged. `v0.1.0` and `submission-2026` still resolve to `77e53be918a758c5f43de49ae4ea56c8699be933`.
+
+## Original tagged-release verification
 
 - Node 24: app/config type checking, ESLint, all 72 unit/runtime/audio tests and production build pass.
 - Cafe browser preparation: three recipes, two-cup tea, local Rive, pause freezes brewing, cup washing, pantry, closing cleanup, waiting neighbor, finale and Rive fallback pass.
@@ -23,7 +31,7 @@ Evidence is generated under ignored `output/` paths. These checks use isolated a
 ## Publishing status
 
 - Public source: https://github.com/flaune/mikanra-game.
-- Current playable backup: https://flaune.github.io/mikanra-game/ — anonymously verified for production boot, local assets, decoded arrival/Japanese audio playback, credits, arrival skip, saved-shift resume, mobile notice and absence of QA controls. [Successful deployment](https://github.com/flaune/mikanra-game/actions/runs/39456146705).
+- Frozen original-release backup: https://flaune.github.io/mikanra-game/ — anonymously verified for production boot, local assets, decoded arrival/Japanese audio playback, credits, arrival skip, saved-shift resume, mobile notice and absence of QA controls. [Successful deployment](https://github.com/flaune/mikanra-game/actions/runs/39456146705).
 - Clean checkout: fresh `npm ci`, all 72 tests, lint/types and production build passed.
 - Independent Linux workflow: [all release checks passed](https://github.com/flaune/mikanra-game/actions/runs/39455454543), including the full browser suite. Verified application commit: `616c19986791a5e4ea07312eb5672a986b7b0064`; subsequent release edits only record documentation/results.
 - The browser suite includes a stalled-timer dialogue regression. Cafe interaction tests wait for actual manual-work completion and run at a supported 1000×700 logical viewport with reduced motion and half-density software rendering in CI. The production smoke check uses 1440×900 at normal density.

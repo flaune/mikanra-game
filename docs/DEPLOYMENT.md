@@ -1,5 +1,22 @@
 # Deployment and the judging freeze
 
+## Current café on Vercel
+
+Public demo: https://mikanra-game.vercel.app/. The separate `mikanra-game` project serves `flaune/mikanra-game` at commit `4fe8a279e771b37c5bd9908ab7265c0983e455a4`, the merged café repair. The older `mikanra_test` project and private repository are preserved.
+
+Build settings are Vite, Node 24.x, repository root, `npm ci`, `npm run build`, and output `dist`. The game needs no backend or application secrets. Vercel Authentication is disabled for this public demo. No custom domain was purchased or configured.
+
+The production deployment was staged from the exact GitHub commit, checked anonymously, then promoted without rebuilding. Its ID and verification are in [release status](submission/RELEASE_STATUS.md). This project has no automatic Git integration and `autoAssignCustomDomains` is false, keeping later production promotions manual through October 31. Ordinary GitHub pushes do not replace this judging build.
+
+For necessary maintenance, check out the reviewed commit in a clean directory, confirm the account and **`mikanra-game`** project before linking, then stage with `vercel deploy --prod --skip-domain`. Run both public checks against the resulting deployment URL:
+
+```sh
+node tests/browser/release-smoke.cjs https://DEPLOYMENT.vercel.app/
+node tests/browser/launch.cjs https://DEPLOYMENT.vercel.app/
+```
+
+Promote that same production deployment with `vercel promote DEPLOYMENT_URL`. Recheck the public alias and restore `autoAssignCustomDomains: false` afterward, since promotion can enable automatic domain assignment. Keep authentication disabled and preserve the original release tags. Use a new maintenance commit rather than moving a frozen tag. No recurring availability monitor was created.
+
 ## Original Bolt project
 
 The existing public URL is https://mikanra-japanese-lea-d6bu.bolt.host/. During preparation it served the earlier “Click to explore” prototype, rather than the current seven-morning cafe release. The source repository and original Bolt project must be synchronized before treating that URL as the current submission build.
@@ -12,9 +29,9 @@ The existing public URL is https://mikanra-japanese-lea-d6bu.bolt.host/. During 
 
 An authenticated Bolt session is needed for this workflow. The available computer/browser-control service failed to initialize during this preparation; no credentials were extracted and the older Bolt deployment was not represented as updated. Publishing source back to Bolt does not change the historical development disclosure or confirm eligibility.
 
-## Current-build backup on GitHub Pages
+## Frozen original-release backup on GitHub Pages
 
-The repository includes a manually triggered Pages workflow that builds an explicit release tag at `/mikanra-game/`. Its expected URL is https://flaune.github.io/mikanra-game/. Check RELEASE_STATUS.md for the actual deployment outcome before using that URL. This is an additional playable build, not a replacement for the required Bolt editor link or organizer eligibility decision.
+The repository includes a manually triggered Pages workflow that builds an explicit release tag at `/mikanra-game/`. Its URL is https://flaune.github.io/mikanra-game/. It preserves the original tagged release; the current café repair is on Vercel. Check [release status](submission/RELEASE_STATUS.md). Neither host replaces the required Bolt editor link or organizer eligibility decision.
 
 The `Publish selected release` workflow defaults to `submission-2026` and does not deploy automatically on pushes. Release checks run on main-branch pushes and pull requests. Audio and Rive asset paths support the Pages subdirectory.
 

@@ -4,15 +4,15 @@
 
 Mikanra is a desktop browser game about preparing drinks, understanding your customers, and becoming part of their neighborhood. At Cafe Mikan, greetings and orders matter because they help you do something for someone you get to know.
 
-The `fix/cafe-flow` branch adds steady workbench preparation, batch housekeeping and repaired customer routes. Its local changes do not replace the tagged public submission release.
+The current café includes steady workbench preparation, batch housekeeping and repaired customer routes. The original submission tags remain frozen.
 
 ![Guided coffee preparation at Cafe Mikan](docs/screenshots/workbench-coffee.jpg)
 
-[Play the current release](https://flaune.github.io/mikanra-game/) · [Original Bolt deployment](https://mikanra-japanese-lea-d6bu.bolt.host/) · [Submission pack](docs/submission/README.md) · [Business assessment](docs/BUSINESS.md)
+[Play the current café demo](https://mikanra-game.vercel.app/) · [Original Bolt deployment](https://mikanra-japanese-lea-d6bu.bolt.host/) · [Submission pack](docs/submission/README.md) · [Business assessment](docs/BUSINESS.md)
 
-[Watch the 30-second vertical gameplay teaser](docs/submission/media/mikanra-teaser-30s.mp4). Its workbench footage previews this repair branch; [upload copy and credits](docs/submission/TEASER.md) are included.
+[Watch the 30-second vertical teaser](docs/submission/media/mikanra-teaser-30s.mp4): one tea order, preparation and service, with [upload copy and credits](docs/submission/TEASER.md).
 
-The current game is published on GitHub Pages as a free prototype backup. The original Bolt deployment was found to serve an earlier prototype and still needs synchronization through the founder's signed-in Bolt project. Check [release status](docs/submission/RELEASE_STATUS.md) before choosing the contest live link.
+The merged café repair is freely playable on Vercel. [GitHub Pages](https://flaune.github.io/mikanra-game/) preserves the frozen original release as a backup. The original Bolt deployment was found to serve an earlier prototype and still needs synchronization through the founder's signed-in Bolt project. Check [release status](docs/submission/RELEASE_STATUS.md) before choosing the contest live link.
 
 ## What you can play
 
