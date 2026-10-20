@@ -1,4 +1,7 @@
-import { nextServiceStep } from './cafeService';
+import { nextServiceStep, guidedStep } from './cafeService';
+import type { WorkMode } from './cafeService';
+import { BENCHES, SERVING_VIEW, CAFE_ORIGIN, benchForStation, staffSide } from './cafeLayout';
+import type { Workbench } from './cafeLayout';
 import type { CafeService, ServiceAction, Station } from './cafeService';
 import * as THREE from "three";
 import { CharacterMotor, EYE_HEIGHT } from "./physics";
@@ -11,10 +14,11 @@ import { buildCafeStreet, STREET_SPAWN, STREET_YAW, STREET_SKY, CAFE_RETURN, INT
 import { disposeScene } from './resources';
 import { SimulationClock } from './simulation';
 import type { Shift, Drink } from './chapterOne';
-import { paymentFor, serviceGuide, POUR_SECONDS, PERFECT_POUR_START, PERFECT_POUR_END } from './chapterOne';
+import { getCustomer, paymentFor, serviceGuide, POUR_SECONDS, PERFECT_POUR_START, PERFECT_POUR_END } from './chapterOne';
 import { TrainJourney } from './trainJourney';
 
 export interface EngineCallbacks {
+  onWorkbench?: (area: Workbench | null, mode: WorkMode) => void;
   onReady: () => void;
   onLockChange: (locked: boolean) => void;
   onPlayChange?: (playing: boolean) => void;
@@ -60,6 +64,7 @@ export class GameEngine {
   private shiftStage: string = '';
   private cafeService?: CafeService;
   private serviceElapsed = 0;
+  private cafeTime = 0;
   private trayFull = false;
   private work: { id: string; elapsed: number; published: number } | null = null;
   private trayView: THREE.Group | null = null;
@@ -83,12 +88,20 @@ export class GameEngine {
   private cameraMotion = false;
   private viewportSuspended = false;
   private lockPending = false;
+  private releaseForWorkbench = false;
   private lockTimeout: ReturnType<typeof setTimeout> | undefined;
   private lookMode: 'pointer-lock' | 'mouse' = 'pointer-lock';
   private mousePosition: { x: number; y: number } | null = null;
   private journey: TrainJourney | null = null;
   private alive = true;
   private frameId = 0;
+  private workbench: Workbench | null = null;
+  private workMode: WorkMode = 'recipe';
+  private benchHeld?: Station;
+  private benchViewKey = '';
+  private benchView?: { position: THREE.Vector3; quaternion: THREE.Quaternion };
+  private shift?: Shift;
+  private lastBenchAction = -Infinity;
   private lastTime: number | null = null;
   private distance = 0;
   private movementSpeed = 0;
@@ -240,7 +253,7 @@ export class GameEngine {
     document.addEventListener(
       "mousemove",
       (e) => {
-        if (!this.active || !this.locked || this.journey) return;
+        if (!this.active || this.workbench || !this.locked || this.journey) return;
         this.yaw -= e.movementX * MOUSE_SENSITIVITY;
         this.pitch = THREE.MathUtils.clamp(
           this.pitch - e.movementY * MOUSE_SENSITIVITY,
@@ -254,7 +267,7 @@ export class GameEngine {
     // Embedded browsers can refuse pointer lock. Ordinary mouse movement still
     // looks around there; no button or drag is required. Re-entry resets deltas.
     canvas.addEventListener('pointermove', e => {
-      if (!this.active || this.locked || this.journey || e.pointerType === 'touch') return;
+      if (!this.active || this.workbench || this.locked || this.journey || e.pointerType === 'touch') return;
       if (this.mousePosition) {
         this.yaw -= (e.clientX - this.mousePosition.x) * MOUSE_SENSITIVITY;
         this.pitch = THREE.MathUtils.clamp(this.pitch - (e.clientY - this.mousePosition.y) * MOUSE_SENSITIVITY, -PITCH_LIMIT, PITCH_LIMIT);
@@ -273,6 +286,13 @@ export class GameEngine {
         }
         if (this.dialogue.active || this.studyActive) return;
         if (!this.active) return;
+        if (this.workbench) {
+          if (e.code === 'Escape') { e.preventDefault(); this.leaveWorkbench(); }
+          else if (e.code === 'KeyE') { e.preventDefault(); if (!e.repeat) this.workbenchInput(true); }
+          else if (e.code === 'KeyJ' && !e.repeat) { e.preventDefault(); this.openStudy(); this.callbacks.onNotebook?.(); }
+          else if (['KeyW','KeyA','KeyS','KeyD','ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.code)) e.preventDefault();
+          return;
+        }
         if (['Digit1','Digit2'].includes(e.code) && this.inCafe && ['brew','serve'].includes(this.shiftStage) && !e.repeat) { this.callbacks.onService?.({ type: 'portions', count: e.code === 'Digit2' ? 2 : 1 }); return; }
         if (e.code === 'KeyJ' && !e.repeat) { e.preventDefault(); this.openStudy(); this.callbacks.onNotebook?.(); return; }
         if (
@@ -292,11 +312,12 @@ export class GameEngine {
     );
 
     document.addEventListener("keyup", (e) => {
-      if (e.code === 'KeyE' && this.active && this.keys.has('KeyE') && this.movementSpeed <= .1 && this.cafeService && (this.cafeService.manual || this.cafeService.coffee === 'extracting') && this.interaction.update(this.camera)?.id === 'shift-'+(this.cafeService.manual?.station ?? 'coffee')) this.callbacks.onService?.({ type: 'release' });
+      if (this.workbench) { if (e.code === 'KeyE') this.workbenchInput(false); return; }
+      if (e.code === 'KeyE' && this.active && this.keys.has('KeyE') && this.movementSpeed <= .1 && this.cafeService && (this.cafeService.manual || this.cafeService.coffee === 'extracting') && this.interaction.update(this.camera,this.guideTarget)?.id === 'shift-'+(this.cafeService.manual?.station ?? 'coffee')) this.callbacks.onService?.({ type: 'release' });
       if (e.code === 'KeyE' && this.work && this.active) {
         const fraction = this.work.elapsed / POUR_SECONDS;
         this.camera.rotation.set(this.pitch, this.yaw, 0);
-        if (fraction >= PERFECT_POUR_START && this.movementSpeed <= .1 && this.interaction.update(this.camera)?.id === this.work.id) this.finishPour(fraction <= PERFECT_POUR_END);
+        if (fraction >= PERFECT_POUR_START && this.movementSpeed <= .1 && this.interaction.update(this.camera,this.guideTarget)?.id === this.work.id) this.finishPour(fraction <= PERFECT_POUR_END);
         else this.cancelWork();
       }
       this.keys.delete(e.code);
@@ -316,7 +337,8 @@ export class GameEngine {
           if (wantsPlay && !this.dialogue.active && !this.infoActive) this.beginPlay('pointer-lock');
           else document.exitPointerLock();
         }
-        if (wasLocked && !this.locked && !this.dialogue.active) this.pause();
+        if (wasLocked && !this.locked && !this.dialogue.active && !this.workbench && !this.releaseForWorkbench) this.pause();
+        if(!this.locked)this.releaseForWorkbench=false;
         this.callbacks.onLockChange(this.locked);
       },
       { signal },
@@ -345,7 +367,7 @@ export class GameEngine {
   private handleInteract() {
     // Recheck visibility and aim on the input event, not a stale render-frame target.
     this.camera.rotation.set(this.pitch, this.yaw, 0);
-    this.publishInteraction(this.interaction.update(this.camera));
+    this.publishInteraction(this.interaction.update(this.camera,this.guideTarget));
     const result = this.interaction.trigger();
     if (!result) return;
 
@@ -356,11 +378,11 @@ export class GameEngine {
       this.pause();
     }
 
-    if (target.id.startsWith('shift-') && target.id !== 'shift-customer' && this.inCafe && this.position.z > 98.05) {
+    if (target.id.startsWith('shift-') && target.id !== 'shift-customer' && this.inCafe && !staffSide(this.position.z - CAFE_ORIGIN)) {
       this.callbacks.onObjective?.('Walk around the right end of the counter to reach your work area.'); return;
     }
     if (this.callbacks.onService && target.id.startsWith('shift-') && !['shift-customer','shift-register'].includes(target.id)) {
-      this.callbacks.onService({ type: 'station', station: target.id.slice(6) as Station }); return;
+      this.enterWorkbench(target.id.slice(6)); return;
     }
     if (['shift-coffee', 'shift-tea', 'shift-water'].includes(target.id) && this.callbacks.onPrepare) {
       if (this.trayFull) { this.callbacks.onObjective?.('Your tray is full. Serve your customer or return the cups before pouring again.'); return; }
@@ -477,6 +499,9 @@ export class GameEngine {
   }
 
   start() {
+    if (this.workbench && !this.active && !this.studyActive && !this.viewportSuspended && !document.hidden && this.alive) {
+      this.active = true; this.resetMovement(); this.callbacks.onPlayChange?.(true); return;
+    }
     if (this.viewportSuspended || document.hidden || !this.renderer || !this.alive || this.active || this.lockPending || this.dialogue.active || this.infoActive || this.studyActive) return;
     this.lockPending = true;
     if (typeof this.renderer.domElement.requestPointerLock !== 'function') {
@@ -516,19 +541,79 @@ export class GameEngine {
     this.updateVisibility();
   }
 
+  private currentBenchStep() {
+    const shift=this.shift;
+    return shift?.service ? guidedStep(shift.service,shift.ticket?.drink ?? getCustomer(shift).drink,shift.ticket?.count ?? getCustomer(shift).count as 1|2,shift.day,this.workMode) : null;
+  }
+  private enterWorkbench(station: string) {
+    if (!this.shift || !this.inCafe || !staffSide(this.position.z-CAFE_ORIGIN)) return;
+    this.workbench=benchForStation(station);
+    this.workMode=this.shift.stage==='report'?'cleanup':['brew','serve'].includes(this.shift.stage)?'recipe':'wash';
+    this.benchHeld=undefined; this.keys.clear(); this.lockPending=false; clearTimeout(this.lockTimeout);
+    this.resetMovement();this.clearInteraction();this.syncWorkbenchView(true);
+    if(this.trayView)this.trayView.visible=false;
+    this.worldData?.equipment?.setWorkbench(true);
+    if(document.pointerLockElement===this.renderer?.domElement){this.releaseForWorkbench=true;document.exitPointerLock();}
+    if(this.renderer)this.renderer.domElement.style.cursor='';
+  }
+  private syncWorkbenchView(force=false) {
+    if(!this.workbench)return;
+    const step=this.currentBenchStep();
+    const area=step?benchForStation(step.station):this.workbench;
+    const ready=this.workMode==='recipe'&&!step;
+    const viewKey=area+(ready?':tray':'');
+    if(!force&&viewKey===this.benchViewKey&&this.benchView)return;
+    this.benchViewKey=viewKey;
+    this.workbench=area;
+    const anchor=ready?SERVING_VIEW:BENCHES[area],view=new THREE.PerspectiveCamera();
+    view.position.set(anchor.position[0]+CAFE_ORIGIN,anchor.position[1],anchor.position[2]+CAFE_ORIGIN);
+    view.lookAt(anchor.look[0]+CAFE_ORIGIN,anchor.look[1],anchor.look[2]+CAFE_ORIGIN);
+    this.benchView={position:view.position.clone(),quaternion:view.quaternion.clone()};
+    this.callbacks.onWorkbench?.(area,this.workMode);
+  }
+  setWorkbenchMode(mode: WorkMode) {
+    if(!this.workbench||!this.active)return;
+    this.workbenchInput(false);this.workMode=mode;this.syncWorkbenchView(true);
+  }
+  workbenchInput(held: boolean, expected?: string) {
+    if(!held) {
+      if(this.benchHeld && this.active)this.callbacks.onService?.({type:'release'});
+      this.benchHeld=undefined;return;
+    }
+    if(!this.workbench||!this.active||!this.shift)return;
+    const step=this.currentBenchStep();
+    if(!step||(expected&&expected!==step.key)||this.benchHeld)return;
+    if(step.waiting){if(step.station==='coffee')this.benchHeld='coffee';return;}
+    if(!step.hold&&performance.now()-this.lastBenchAction<180)return;
+    this.lastBenchAction=performance.now();
+    if(step.hold||(step.station==='coffee'&&this.cafeService?.coffee==='locked'))this.benchHeld=step.station;
+    this.callbacks.onService?.({type:'guided',step:step.key,drink:this.shift.ticket?.drink??getCustomer(this.shift).drink,count:(this.shift.ticket?.count??getCustomer(this.shift).count) as 1|2,mode:this.workMode});
+  }
+  leaveWorkbench() {
+    if(!this.workbench)return;
+    this.workbenchInput(false);this.workbench=null;this.benchView=undefined;
+    this.worldData?.equipment?.setWorkbench(false);
+    this.callbacks.onWorkbench?.(null,'recipe');
+    this.camera.position.copy(this.position);this.camera.position.y+=EYE_HEIGHT;this.camera.rotation.set(this.pitch,this.yaw,0);
+    this.beginPlay('mouse');if(this.shift)this.setShiftPresentation(this.shift);
+  }
+
   openStudy() { this.studyActive = true; this.pause(); }
   closeStudy() { this.studyActive = false; this.start(); }
   setShiftPresentation(shift: Shift) {
+    this.shift = shift;
     this.shiftStage = shift.stage;
     this.trayFull = shift.tray.length >= 2;
     this.guideTarget = serviceGuide(shift).target;
+    if (shift.service && ['brew','serve'].includes(shift.stage)) { const step = guidedStep(shift.service,shift.ticket?.drink ?? getCustomer(shift).drink,shift.ticket?.count ?? getCustomer(shift).count,shift.day); if (step) this.guideTarget = 'shift-'+step.station; }
+    if (this.workbench) this.syncWorkbenchView();
     this.cafeService = shift.service;
     if (shift.service) {
       this.worldData?.equipment?.setState(shift.service);
       const task = nextServiceStep(shift.service, shift.ticket?.drink ?? 'coffee', shift.day);
       for (const target of this.worldData?.interactables ?? []) {
-        if (target.id === 'shift-'+task.station) target.prompt = `${task.hold ? 'Hold E' : 'E'} · ${task.label}`;
-        else if (target.id.startsWith('shift-') && !['shift-customer','shift-register'].includes(target.id)) target.prompt = 'E · '+target.id.slice(6).replace(/^./, c => c.toUpperCase());
+        if (target.id === 'shift-'+task.station) target.prompt = 'Open workbench · '+task.label;
+        else if (target.id.startsWith('shift-') && !['shift-customer','shift-register'].includes(target.id)) target.prompt = 'Open workbench';
       }
     }
     if (!this.renderer) return;
@@ -548,7 +633,7 @@ export class GameEngine {
       }
       tray.position.set(.25, -.52, -.9); this.camera.add(tray); this.scene.add(this.camera); this.trayView = tray;
     }
-    this.trayView.visible = this.inCafe && shift.tray.length > 0 && ['brew','serve'].includes(shift.stage);
+    this.trayView.visible = !this.workbench && this.inCafe && shift.tray.length > 0 && ['brew','serve'].includes(shift.stage);
     for (let i = 1; i < this.trayView.children.length; i++) {
       this.trayView.children[i].visible = Math.ceil(i / 2) <= shift.tray.length;
       if (i % 2 === 0) { const drink = shift.tray[i / 2 - 1]; ((this.trayView.children[i] as THREE.Mesh).material as THREE.MeshStandardMaterial).color.set(drink === 'coffee' ? 0x493020 : drink === 'tea' ? 0x948044 : 0x83b1bf); }
@@ -564,7 +649,7 @@ export class GameEngine {
   }
   private updateGuidance(dt: number) {
     if (!this.guidance) return;
-    this.guidance.visible = this.inCafe && this.active;
+    this.guidance.visible = !this.workbench && this.inCafe && this.active;
     if (!this.guidance.visible) return;
     const target = this.worldData?.interactables?.find(item => item.id === this.guideTarget);
     if (!target) { this.guidance.visible = false; return; }
@@ -627,6 +712,7 @@ export class GameEngine {
 
   pause() {
     this.cancelWork();
+    this.benchHeld = undefined;
     this.active = false;
     this.lockPending = false;
     clearTimeout(this.lockTimeout);
@@ -748,20 +834,22 @@ export class GameEngine {
       if (this.journey) {
         if (this.journey.update(dt)) this.finishArrival();
       } else if (this.active) {
-        this.simulation.advance(dt, step => this.walk(step));
-        this.present(dt);
-        const result = this.interaction.update(this.camera);
+        if (this.workbench && this.benchView) {
+          const t = matchMedia('(prefers-reduced-motion: reduce)').matches ? 1 : 1-Math.exp(-dt*16);
+          this.camera.position.lerp(this.benchView.position,t); this.camera.quaternion.slerp(this.benchView.quaternion,t);
+        } else { this.simulation.advance(dt, step => this.walk(step)); this.present(dt); }
+        const result = this.workbench ? null : this.interaction.update(this.camera,this.guideTarget);
         this.publishInteraction(result);
         this.updateWork(dt, result);
         if (this.inCafe && this.cafeService && this.shiftStage !== 'done') {
           this.serviceElapsed += dt;
           if (this.serviceElapsed >= .1) {
-            const held = this.keys.has('KeyE') && this.movementSpeed <= .1 && result?.id.startsWith('shift-') ? result.id.slice(6) as Station : undefined;
+            const held = this.workbench ? this.benchHeld : this.keys.has('KeyE') && this.movementSpeed <= .1 && result?.id.startsWith('shift-') ? result.id.slice(6) as Station : undefined;
             this.callbacks.onService?.({ type: 'tick', seconds: this.serviceElapsed, held }); this.serviceElapsed = 0;
           }
           this.worldData?.equipment?.update(dt, this.cameraMotion);
         }
-      } else if (!this.dialogue.active) {
+      } else if (!this.dialogue.active && !this.workbench) {
         this.camera.position.copy(this.position);
         this.camera.position.y += EYE_HEIGHT;
         this.camera.rotation.set(
@@ -771,7 +859,10 @@ export class GameEngine {
         );
       }
 
-      if (!this.journey && this.inCafe && (this.active || this.studyActive)) this.worldData?.customerService?.update(dt);
+      if (!this.journey && this.inCafe && (this.active || this.studyActive)) {
+        this.worldData?.customerService?.update(dt);this.cafeTime+=dt;
+        const owner=this.worldData?.owner;if(owner){owner.setBlink(this.cafeTime%4.6<.14);owner.head.rotation.y=Math.sin(this.cafeTime*.65)*.045;}
+      }
       if (!this.journey) this.updateGuidance(dt);
       if (this.journey) this.renderer?.render(this.journey.scene, this.journey.camera);
       else this.renderer?.render(this.scene, this.camera);

@@ -15,6 +15,7 @@ Original Mikanra material is © 2026 Bryan, all rights reserved. Third-party rig
 | `cafe-feedback.riv` / `rive/scene.rml` | Original Rive artwork / source | Original project material; all rights reserved |
 | `arrival.mp3` | Mathematical synthesis in `scripts/generate-arrival.cjs` | Original project material; all rights reserved |
 | Release screenshots | Captured from this game | Original project material; all rights reserved |
+| 30-second teaser | Edited gameplay captures, original oscillator music and two bundled Mei voice clips | Original project footage/music retain all rights reserved; Mei voice remains CC BY 3.0. Full upload credits accompany the video. System fonts are local rendering inputs and their font files are not distributed. |
 
 The exact installed runtime versions and full license texts are in [the shipped notice index](public/licenses/index.html). Run `npm run licenses` after dependency changes. Rive's package omits its MIT license file; its notice is retained from the official [rive-wasm repository](https://github.com/rive-app/rive-wasm/blob/master/LICENSE).
 

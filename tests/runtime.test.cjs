@@ -10,7 +10,7 @@ function load(file, imports = {}, globals = {}) {
   const exports = {};
   const source = fs.readFileSync(path.join(__dirname, '../src/game', file + '.ts'), 'utf8');
   const code = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText;
-  vm.runInNewContext(code, { exports, require: name => imports[name] ?? (name === 'three' ? THREE : name === './cafeService' ? load('cafeService') : require(name)), ...globals });
+  vm.runInNewContext(code, { exports, require: name => imports[name] ?? (name === 'three' ? THREE : name === './cafeService' ? load('cafeService') : name === './cafeLayout' ? load('cafeLayout') : require(name)), ...globals });
   return exports;
 }
 const { InteractionSystem } = load('interaction');
@@ -22,6 +22,17 @@ const box = (z, depth = 1, material = new THREE.MeshStandardMaterial()) => {
   return mesh;
 };
 const register = (system, mesh, id, range = 10) => system.register({ mesh, id, type: 'info', prompt: id, range, interact() {} });
+
+test('guided targeting favors the current task near adjacent tools and still respects walls',()=>{
+ const scene=new THREE.Scene(),system=new InteractionSystem(scene),camera=new THREE.PerspectiveCamera();
+ const target=new THREE.Mesh(new THREE.BoxGeometry(.25,.4,.2),new THREE.MeshBasicMaterial({visible:false}));target.position.set(.45,0,-2);scene.add(target);
+ const other=new THREE.Mesh(new THREE.BoxGeometry(.25,.4,.2),new THREE.MeshBasicMaterial({visible:false}));other.position.set(0,0,-2);scene.add(other);
+ system.register({mesh:target,id:'register',prompt:'Register',type:'dialogue',range:3,aimAssist:true,interact(){}});
+ system.register({mesh:other,id:'tray',prompt:'Tray',type:'dialogue',range:3,aimAssist:true,interact(){}});
+ assert.equal(system.update(camera)?.id,'tray');assert.equal(system.update(camera,'register')?.id,'register');
+ const wall=new THREE.Mesh(new THREE.BoxGeometry(3,3,.1),new THREE.MeshStandardMaterial());wall.position.z=-1;scene.add(wall);
+ assert.equal(system.update(camera,'register'),null);system.dispose();disposeScene(scene);
+});
 
 test('opaque walls block targets; hidden walls, glass and invisible triggers do not', () => {
   const scene = new THREE.Scene(), camera = new THREE.PerspectiveCamera();
@@ -345,8 +356,8 @@ test('cafe service aisle and staff pantry are reachable with the real player mot
  };
  walkTo(2.2, .7); walkTo(2.2, -2.4);
  walkTo(1.4, -2.4); walkTo(-2.8, -2.4); // till to all three drink stations
- walkTo(1.4, -2.4); walkTo(2.6, -2.4); walkTo(2.6, -4.4); // through staff doorway
- walkTo(2.6, -2.4); walkTo(2.2, .7); walkTo(0, 2);
+ walkTo(1.4, -2.4); walkTo(2.3, -2.4); walkTo(2.3, -3.25); walkTo(2.6, -3.25); walkTo(2.6, -4.4); // through staff doorway
+ walkTo(2.6, -3.25); walkTo(2.3, -3.25); walkTo(2.3, -2.4); walkTo(2.2, .7); walkTo(0, 2);
  motor.dispose(); disposeScene(room.group);
 });
 
@@ -380,4 +391,30 @@ test('real café preparation stations are selectable through their tools but nev
   }
   world.cafeInterior.visible=false;assert.equal(system.update(camera),null,'The hidden café cannot expose station targets');
  } finally {system.dispose();disposeScene(scene);}
+});
+
+test('customer routes clear furniture, preserve motion across snapshots and promote one customer at a time', () => {
+ const service=load('cafeService'),chapter=load('chapterOne',{'./cafeService':service});
+ const avatar={getAvatarProfile:()=>({}),createAvatar:()=>({group:new THREE.Group(),head:new THREE.Group(),legs:[],arms:[],setExpression(){},setBlink(){}})};
+ const {CustomerService}=load('customerService',{'./chapterOne':chapter,'./avatar':avatar});
+ const c=new CustomerService();
+ let shift=chapter.newShift(5);c.setShift(shift);shift=chapter.actShift(shift,{type:'begin'}).state;c.setShift(shift);
+ let moving=0;
+ for(let i=0;i<1000;i++){
+  c.update(1/60);c.setShift(shift);
+  if(c.people[0].phase==='serving')break;
+  moving++;
+ }
+ assert.ok(moving>60);assert.equal(c.people[0].phase,'serving');assert.equal(c.people[1].phase,'queued');
+ const before=c.people[1].group.position.clone();c.setShift({...shift,customer:1});
+ assert.equal(c.people[0].phase,'departing');assert.ok(c.people[1].group.position.equals(before));assert.equal(c.people[2].phase,'hidden','No second person is spawned inside an occupied queue slot');
+ for(let i=0;i<1000;i++){
+  c.update(1/60);c.setShift({...shift,customer:1});
+  const visible=c.people.filter(p=>p.group.visible);
+  for(let a=0;a<visible.length;a++)for(let b=a+1;b<visible.length;b++)assert.ok(visible[a].group.position.distanceTo(visible[b].group.position)>.6,'Customer bodies must not overlap');
+  if(c.people[0].phase==='hidden'&&c.people[1].phase==='serving')break;
+ }
+ assert.equal(c.people[0].phase,'hidden');assert.equal(c.people[1].phase,'serving');assert.equal(c.people[2].phase,'queued');
+ const reload=new CustomerService();reload.setShift({...shift,customer:1});assert.equal(reload.people[1].phase,'serving','A restored visit is already at its service position');
+ disposeScene(c.group);disposeScene(reload.group);
 });

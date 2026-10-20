@@ -9,10 +9,14 @@ export interface CafeService {
   tea: 'empty' | 'leaves' | 'steeping' | 'ready'; teaTime: number; portions: 1 | 2; teaLeft: number;
   coffee: 'empty' | 'ground' | 'tamped' | 'locked' | 'extracting' | 'ready'; coffeeTime: number; coffeeCup?: number;
   stock: { tea: number; coffee: number }; counterDirty: boolean; washed: number;
-  manual?: { station: 'tea' | 'water' | 'sink' | 'wipe'; elapsed: number; cup?: number };
+  guided?: boolean;
+  manual?: { station: 'tea' | 'water' | 'sink' | 'wipe'; elapsed: number; cup?: number; batch?: boolean };
 }
 export type ServiceAction = { type: 'station'; station: Station } | { type: 'portions'; count: 1 | 2 } |
-  { type: 'tick'; seconds: number; held?: Station } | { type: 'release' };
+  { type: 'tick'; seconds: number; held?: Station } | { type: 'release' } |
+  { type: 'guided'; step: string; drink: Drink; count: 1 | 2; mode?: WorkMode };
+export type WorkMode = 'recipe' | 'cleanup' | 'wash' | 'restock';
+export interface GuidedStep extends ServiceStep { key: string }
 export interface ServiceStep { station: Station; label: string; japanese: string; word?: string; hold?: boolean; waiting?: number }
 export const freshService = (): CafeService => ({ vessels: Array.from({ length: 4 }, (_, id) => ({ id, state: 'clean' })), kettle: 'empty', kettleTime: 0, hotWater: 0, tea: 'empty', teaTime: 0, portions: 1, teaLeft: 0, coffee: 'empty', coffeeTime: 0, stock: { tea: 2, coffee: 2 }, counterDirty: false, washed: 0 });
 export const trayVessels = (s: CafeService) => s.vessels.filter(cup => cup.state === 'tray');
@@ -34,7 +38,7 @@ export function readService(raw: unknown, tray: Drink[] = [], quality: boolean[]
     kettle: ['empty','filled','heating','hot'].includes(r.kettle ?? '') ? r.kettle! : 'empty', kettleTime: number(r.kettleTime, 8), hotWater: number(r.hotWater, 2),
     tea: ['empty','leaves','steeping','ready'].includes(r.tea ?? '') ? r.tea! : 'empty', teaTime: number(r.teaTime, 6), portions: r.portions === 2 ? 2 : 1, teaLeft: number(r.teaLeft, 2),
     coffee: ['empty','ground','tamped','locked','extracting','ready'].includes(r.coffee ?? '') ? r.coffee! : 'empty', coffeeTime: number(r.coffeeTime, 6),
-    stock: { tea: Math.floor(number(r.stock?.tea, 4)), coffee: Math.floor(number(r.stock?.coffee, 4)) }, counterDirty: r.counterDirty === true, washed: Math.floor(number(r.washed, 999)),
+    stock: { tea: Math.floor(number(r.stock?.tea, 4)), coffee: Math.floor(number(r.stock?.coffee, 4)) }, counterDirty: r.counterDirty === true, washed: Math.floor(number(r.washed, 999)), guided: r.guided === true,
   };
   s.hotWater = Math.floor(s.hotWater); s.teaLeft = Math.floor(s.teaLeft);
   if (s.kettle === 'empty') s.hotWater = 0;
@@ -67,7 +71,7 @@ export function readService(raw: unknown, tray: Drink[] = [], quality: boolean[]
   if (r.manual && ['tea','water','sink','wipe'].includes(r.manual.station)) {
     const m = r.manual;
     const cupExists = Number.isInteger(m.cup) && s.vessels[m.cup!];
-    if ((m.station === 'wipe' && s.counterDirty) || (m.station === 'sink' && cupExists && s.vessels[m.cup!].state === 'dirty') || (['tea','water'].includes(m.station) && cupExists && m.cup === s.activeCup && (m.station !== 'tea' || s.tea === 'ready'))) s.manual = { station: m.station, elapsed: number(m.elapsed, m.station === 'sink' ? 3 : m.station === 'wipe' ? 2 : 1.6), cup: m.cup };
+    if ((m.station === 'wipe' && s.counterDirty) || (m.station === 'sink' && cupExists && s.vessels[m.cup!].state === 'dirty') || (['tea','water'].includes(m.station) && cupExists && m.cup === s.activeCup && (m.station !== 'tea' || s.tea === 'ready'))) s.manual = { station: m.station, elapsed: number(m.elapsed, m.station === 'sink' ? 3 : m.station === 'wipe' ? 2 : 1.6), cup: m.cup, batch: m.station === 'sink' && m.batch === true };
   }
   return s;
 }
@@ -115,14 +119,75 @@ export function workStatus(s: CafeService) {
   if (s.kettle === 'heating') return { fraction: 1 - s.kettleTime / 8, station: 'kettle' as Station, label: 'Heating water', pouring: false };
   return null;
 }
+
+/** The next visible gesture. Its key rejects clicks left over from an older step. */
+export function guidedStep(s: CafeService, drink: Drink, count: number, day = 1, mode: WorkMode = 'recipe'): GuidedStep | null {
+  const dirty = s.vessels.filter(c => c.state === 'dirty');
+  const wash = (): GuidedStep | null => dirty.length ? { key: 'wash-' + dirty.map(c => c.id).join('-'), station: 'sink', label: 'Wash returned cups', japanese: '洗う', word: 'wash', hold: true } : null;
+  if (s.manual) {
+    const m = s.manual;
+    return { key: m.station === 'sink' ? 'wash-' + dirty.map(c => c.id).join('-') : `${m.station}-${m.cup ?? 'counter'}`, station: m.station, label: m.station === 'sink' ? 'Wash returned cups' : m.station === 'wipe' ? 'Wipe the counter' : 'Pour into the cup', japanese: m.station === 'sink' ? '洗う' : m.station === 'wipe' ? '片付け' : '注ぐ', word: m.station === 'sink' ? 'wash' : m.station === 'wipe' ? undefined : 'pour', hold: true };
+  }
+  if (mode === 'restock') return s.stock.coffee === 4 && s.stock.tea === 4 ? null : { key: `restock-${s.stock.coffee}-${s.stock.tea}`, station: 'pantry', label: 'Refill beans and tea leaves', japanese: '茶葉', word: 'leaves' };
+  if (mode === 'wash') return wash();
+  if (mode === 'cleanup') {
+    const step = closingStep(s);
+    if (!step) return null;
+    return step.station === 'sink' ? wash() : { ...step, key: 'tidy-' + step.station };
+  }
+  if (trayVessels(s).length >= count) return null;
+  if (s.vessels.some(c => c.state === 'filled')) return { key: 'collect-ready', station: 'tray', label: 'Collect the finished drink', japanese: 'できました', word: 'ready' };
+  const available = s.activeCup !== undefined || s.vessels.some(c => c.state === 'clean');
+  const remaining = Math.max(1, count - trayVessels(s).length) as 1 | 2;
+  const step = nextServiceStep(s.tea === 'empty' ? { ...s, portions: remaining } : s, drink, day);
+  if (step.station === 'cups' || (drink === 'water' && !available)) {
+    if (!available) return wash();
+    return { key: drink === 'coffee' ? 'start-coffee' : `${drink}-${s.activeCup ?? s.vessels.find(c => c.state === 'clean')!.id}`, station: drink, label: drink === 'coffee' ? 'Place cup and brew coffee' : drink === 'tea' ? 'Pour the tea' : 'Fill a glass of water', japanese: drink === 'coffee' ? 'コーヒー' : '注ぐ', word: drink === 'coffee' ? 'coffee' : 'pour', hold: drink !== 'coffee' };
+  }
+  if (step.station === 'coffee' && ['ground', 'tamped'].includes(s.coffee)) return { ...step, key: 'prepare-' + s.coffee, label: 'Tamp and attach the portafilter' };
+  if (step.station === 'coffee' && s.coffee === 'locked') return { ...step, key: 'start-coffee', label: 'Place cup and brew coffee' };
+  if (step.station === 'kettle' && !step.waiting) return { ...step, key: 'heat-' + s.kettle, label: 'Fill and heat the kettle' };
+  if (step.station === 'tea' && step.hold) return { ...step, key: `tea-${s.activeCup}`, label: 'Pour the tea' };
+  if (step.station === 'water') return { ...step, key: `water-${s.activeCup}`, label: 'Fill a glass of water' };
+  return { ...step, key: `${step.station}-${drink === 'coffee' ? s.coffee : s.tea}-${s.stock.coffee}-${s.stock.tea}`, label: step.station === 'tea' && s.tea === 'empty' ? `Measure leaves for ${remaining} ${remaining === 1 ? 'cup' : 'cups'}` : step.label };
+}
+
+function actGuided(before: CafeService, action: Extract<ServiceAction, { type: 'guided' }>, day: number) {
+  const step = guidedStep(before, action.drink, action.count, day, action.mode);
+  if (!step || step.key !== action.step || step.waiting) return { state: before, message: '' };
+  let state: CafeService = { ...before, guided: true };
+  if (action.drink === 'tea' && state.tea === 'empty' && !state.manual) state.portions = Math.max(1, action.count - trayVessels(state).length) as 1 | 2;
+  let result = { state, message: '', word: step.word };
+  const at = (station: Station) => { const r = actService(state, { type: 'station', station }, day); state = r.state; result = { ...r, word: r.word ?? step.word }; };
+  if ((step.station === 'coffee' && state.coffee === 'locked') || (['tea', 'water'].includes(step.station) && step.hold)) {
+    if (state.activeCup === undefined) at('cups');
+    if (state.activeCup === undefined) return { state: before, message: 'Wash returned cups before preparing this drink.' };
+  }
+  at(step.station);
+  if (step.station === 'coffee' && state.coffee === 'tamped') at('coffee');
+  if (step.station === 'kettle' && state.kettle === 'filled') at('kettle');
+  if (step.station === 'sink' && state.manual) state = { ...state, manual: { ...state.manual, batch: true } };
+  return { ...result, state };
+}
+
 export function actService(before: CafeService, action: ServiceAction, day = 1): { state: CafeService; message: string; word?: string } {
   const unchanged = (message = '') => ({ state: before, message });
+  if (action.type === 'guided') return actGuided(before, action, day);
   if (action.type === 'portions') return before.tea === 'empty' && !before.manual ? { state: { ...before, portions: action.count }, message: `Tea batch set to ${action.count} cups.` } : unchanged('Finish the current teapot before changing its recipe.');
   const s: CafeService = { ...before, vessels: before.vessels.map(c => ({ ...c })), stock: { ...before.stock }, manual: before.manual && { ...before.manual } };
-  const done = (message: string, word?: string) => ({ state: s, message, word });
+  const done = (message: string, word?: string) => {
+    if (s.guided) for (const cup of s.vessels) {
+      if (cup.state !== 'filled' || trayVessels(s).length >= 2) continue;
+      cup.state = 'tray';
+      if (cup.id === s.coffeeCup) { s.coffee = 'empty'; s.coffeeCup = undefined; s.coffeeTime = 0; }
+    }
+    return { state: s, message, word };
+  };
   const finishManual = (perfect = false) => {
     const m = s.manual!;
-    if (m.station === 'sink') { s.vessels[m.cup!] = { id: m.cup!, state: 'clean' }; s.washed++; }
+    if (m.station === 'sink') {
+      for (const cup of s.vessels) if (cup.state === 'dirty' && (m.batch || cup.id === m.cup)) { s.vessels[cup.id] = { id: cup.id, state: 'clean' }; s.washed++; }
+    }
     else if (m.station === 'wipe') s.counterDirty = false;
     else {
       const drink: Drink = m.station === 'tea' ? 'tea' : 'water';

@@ -1,3 +1,4 @@
+import { STATIONS, COUNTER_TOP, CAFE_ORIGIN } from './cafeLayout';
 import { CafeEquipment } from './cafeEquipment';
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
@@ -373,19 +374,20 @@ export function buildCafeStreet(scene: THREE.Scene, motor: CharacterMotor, inter
   for (let x = -13; x < 13; x += 2.5) plant(root, x, 12.05, 1.15);
 
   // Retain the existing café conversation in a correctly placed, collidable room.
-  const interior = buildCafeInterior(); interior.group.position.set(100, 0, 100); interior.group.visible = false; scene.add(interior.group);
-  for (const c of interior.colliders) motor.addBoxCollider(c.x + 100, c.y, c.z + 100, c.hw, c.hh, c.hd);
-  motor.addBoxCollider(100, -.06, 100, 3.5, .06, 3.5);
+  const interior = buildCafeInterior(); interior.group.position.set(CAFE_ORIGIN, 0, CAFE_ORIGIN); interior.group.visible = false; scene.add(interior.group);
+  for (const c of interior.colliders) motor.addBoxCollider(c.x + CAFE_ORIGIN, c.y, c.z + CAFE_ORIGIN, c.hw, c.hh, c.hd);
+  motor.addBoxCollider(CAFE_ORIGIN, -.06, CAFE_ORIGIN, 3.5, .06, 3.5);
   const triggerMat = new THREE.MeshBasicMaterial({ visible: false });
   const barista = interior.group.getObjectByName('Haru');
   if (barista) register(barista, 'barista', 'Talk to Haru', '話す', 'dialogue', 3);
   function shiftStation(id: string, title: string, x: number, z: number, color: number) {
     const target = new THREE.Group(); target.position.set(x, 0, z); interior.group.add(target);
-    const base = new THREE.Mesh(new THREE.BoxGeometry(.48, .025, .28), new THREE.MeshStandardMaterial({ color, emissive: color, emissiveIntensity: .15 }));
-    base.position.y = 1.18; target.add(base);
-    const label = new THREE.Mesh(new THREE.PlaneGeometry(.46, .095), new THREE.MeshBasicMaterial({ map: makeTextTexture(title, { background: '#f7f5e9', color: '#45614e' }), side: THREE.FrontSide }));
-    label.position.set(0, 1.24, .15); target.add(label);
-    const reverse = label.clone(); reverse.rotation.y = Math.PI; reverse.position.z = -.15; target.add(reverse);
+    // Only three work-area plaques; individual tools use invisible pick volumes.
+    if (['coffee','tea','sink'].some(part => id === 'shift-'+part)) {
+      const label = new THREE.Mesh(new THREE.PlaneGeometry(.4,.075),new THREE.MeshBasicMaterial({map:makeTextTexture(id === 'shift-coffee' ? 'COFFEE' : id === 'shift-tea' ? 'TEA / WATER' : 'CLEANUP',{background:'#eee0bb',color:'#395b53'}),side:THREE.DoubleSide}));
+      label.position.set(0,COUNTER_TOP+.025,id==='shift-sink'?.35:0); label.rotation.x = -Math.PI/2; target.add(label);
+    }
+    void color;
     // The tool itself occupies this space above its counter label. The invisible
     // pick volume lets its own geometry remain usable without bypassing walls.
     const tool = new THREE.Mesh(new THREE.BoxGeometry(.50,.58,.46), new THREE.MeshBasicMaterial({visible:false}));
@@ -394,24 +396,13 @@ export function buildCafeStreet(scene: THREE.Scene, motor: CharacterMotor, inter
     register(target, id, title, '仕事', 'dialogue', 3);
     return target;
   }
-  // Keep the tea and water dispensers clear of the existing espresso machine.
-  for (const [drink, label, x, color] of [['coffee', 'コーヒー', -2.12, 0x668b78], ['tea', 'お茶', -1.05, 0xb79558], ['water', 'お水', -.35, 0x719faf]] as const) {
-    const station = shiftStation(`shift-${drink}`, label, x, drink === 'coffee' ? -2.05 : -1.65, color);
-    station.rotation.y = Math.PI;
-    const target = interactables.find(target => target.id === `shift-${drink}`)!;
-    target.prompt = 'Prepare at this station'; target.japanesePrompt = label;
+  for (const [station, [x,z]] of Object.entries(STATIONS)) {
+    const target = shiftStation('shift-'+station, station === 'register' ? 'Register' : 'Open workbench',x,z,0);
+    target.rotation.y = Math.PI;
+    interactables.find(t=>t.mesh===target)!.japanesePrompt = station === 'register' ? 'お会計' : '仕事';
   }
-  for (const [id, label, x, z] of [['cups','Clean cups',.65,-3.03],['kettle','Kettle',-.35,-1.65],['grinder','Grinder',-2.95,-1.65],['tray','Serving tray',.85,-1.65],['sink','Wash cups',2.65,-2.2],['pantry','Pantry',2.85,-3.05],['wipe','Wipe counter',1.8,-2.1]] as const) {
-    const station = shiftStation('shift-'+id,label,x,z,0x52786a); station.rotation.y = Math.PI;
-    const word = {cups:'カップ',kettle:'お湯',grinder:'コーヒー',tray:'できました',sink:'洗う',pantry:'仕事',wipe:'仕事'}[id];
-    interactables.find(t => t.id === 'shift-'+id)!.japanesePrompt = word;
-  }
-  // Water pitcher is beside the kettle; each tool has its own interaction target.
-  const waterTarget = interactables.find(t => t.id === 'shift-water')!;
-  waterTarget.mesh.position.x = .25; waterTarget.mesh.position.z = -1.65;
   const equipment = new CafeEquipment(); interior.group.add(equipment.group);
-  const registerStation = shiftStation('shift-register', 'Register', 1.4, -1.65, 0xb79558);
-  registerStation.rotation.y = Math.PI;
+  const registerStation = interior.group.getObjectByName('shift-register')!;
   const coins = new THREE.Group(); coins.name = 'customer-payment'; registerStation.add(coins);
   const coinMaterial = new THREE.MeshStandardMaterial({color:0xe2ba68,metalness:.65,roughness:.4});
   for(const x of [-.16,0,.16]) {const coin=new THREE.Mesh(new THREE.CylinderGeometry(.06,.06,.014,12),coinMaterial);coin.position.set(x,1.398,.05);coins.add(coin);}
@@ -419,7 +410,7 @@ export function buildCafeStreet(scene: THREE.Scene, motor: CharacterMotor, inter
 
   const customerService = new CustomerService(); interior.group.add(customerService.group);
   register(customerService.group, 'shift-customer', 'Speak with the customer', '話す', 'dialogue', 3);
-  const returns = shiftStation('shift-return', 'Return cups', 2.1, -1.65, 0x886953); returns.rotation.y = Math.PI;
+
   for (const target of interactables) if (target.id === 'barista' || target.id.startsWith('shift-')) target.aimAssist = true;
   const menu = interior.group.getObjectByName('cafe-menu');
   if (menu) register(menu, 'cafe-menu', 'Read the coffee menu', 'メニュー', 'info', 4.5);
@@ -446,5 +437,5 @@ export function buildCafeStreet(scene: THREE.Scene, motor: CharacterMotor, inter
   // unitBox is still referenced by the interactive door and vending machine.
   for (const geo of oldGeometries) if (geo !== unitBox) geo.dispose();
   root.updateMatrixWorld(true);
-  return { interactables, cafeInterior: interior.group, cafeInteriorColliders: interior.colliders, customerService, equipment };
+  return { interactables, cafeInterior: interior.group, cafeInteriorColliders: interior.colliders, customerService, equipment, owner: interior.owner };
 }

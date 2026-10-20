@@ -73,6 +73,7 @@ function addBoundaryWall(
 
 export interface WorldData {
   equipment?: CafeEquipment;
+  owner?: import('./avatar').Avatar;
   interactables: Interactable[];
   cafeInterior: THREE.Group;
   cafeInteriorColliders: ColliderDef[];
