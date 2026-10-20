@@ -18,7 +18,8 @@ async function stop() {
   if (current && current.exitCode === null) {
     const closed = new Promise(resolve => current.once('exit', resolve));
     current.kill();
-    await closed;
+    const force = setTimeout(() => current.kill('SIGKILL'), 5000);
+    try { await closed; } finally { clearTimeout(force); }
   }
 }
 async function run(file, url) {

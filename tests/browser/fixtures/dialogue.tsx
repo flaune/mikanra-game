@@ -4,7 +4,7 @@ import DialogueBox from '/src/components/DialogueBox';
 
 if (!import.meta.env.DEV) throw new Error('The QA fixture is development-only.');
 
-function Fixture() {
+export function Fixture() {
   const [line, setLine] = useState(0);
   return <>
     <button onClick={() => setLine(value => value + 1)}>Start a new line</button>

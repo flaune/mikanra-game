@@ -18,7 +18,12 @@ Evidence is generated under ignored `output/` paths. These checks use isolated a
 
 ## Publishing status
 
-Clean-checkout verification, GitHub publication and the current-build backup are being completed. This status will be updated with their observed outcome. The original Bolt URL, https://mikanra-japanese-lea-d6bu.bolt.host/, was observed serving the older “Click to explore” prototype.
+- Public source: https://github.com/flaune/mikanra-game.
+- Current playable backup: https://flaune.github.io/mikanra-game/ — anonymously verified for production boot, local assets, credits, arrival skip, saved-shift resume, mobile notice and absence of QA controls.
+- Clean checkout: fresh `npm ci`, all 72 tests, lint/types and production build passed.
+- Independent Linux workflow: https://github.com/flaune/mikanra-game/actions/runs/39453694926. The latest observed run is still completing its browser checks; inspect its final result before treating it as a passed release gate.
+- The browser suite now includes a stalled-timer dialogue regression. Cafe interaction tests wait for actual manual-work completion and run at a supported 1000×700 logical viewport with reduced motion in CI.
+- The original Bolt URL, https://mikanra-japanese-lea-d6bu.bolt.host/, was observed serving the older “Click to explore” prototype. Signed-in Bolt synchronization and editor-link verification remain founder handoff steps.
 
 ## Founder handoff before submitting
 

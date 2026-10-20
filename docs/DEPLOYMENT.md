@@ -16,7 +16,7 @@ An authenticated Bolt session is needed for this workflow. The available compute
 
 The repository includes a manually triggered Pages workflow that builds an explicit release tag at `/mikanra-game/`. Its expected URL is https://flaune.github.io/mikanra-game/. Check RELEASE_STATUS.md for the actual deployment outcome before using that URL. This is an additional playable build, not a replacement for the required Bolt editor link or organizer eligibility decision.
 
-The `Publish selected release` workflow defaults to `submission-2026` and does not deploy automatically on pushes. The release checks run on pushes and pull requests. Audio and Rive asset paths support the Pages subdirectory.
+The `Publish selected release` workflow defaults to `submission-2026` and does not deploy automatically on pushes. Release checks run on main-branch pushes and pull requests. Audio and Rive asset paths support the Pages subdirectory.
 
 ## Prepared handoff archives
 

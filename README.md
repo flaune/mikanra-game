@@ -6,9 +6,9 @@ Mikanra is a desktop browser game about preparing drinks, understanding your cus
 
 ![Serving a neighbor at Cafe Mikan](docs/screenshots/cafe-service.jpg)
 
-[Original Bolt deployment](https://mikanra-japanese-lea-d6bu.bolt.host/) · [Submission pack](docs/submission/README.md) · [Business assessment](docs/BUSINESS.md)
+[Play the current release](https://flaune.github.io/mikanra-game/) · [Original Bolt deployment](https://mikanra-japanese-lea-d6bu.bolt.host/) · [Submission pack](docs/submission/README.md) · [Business assessment](docs/BUSINESS.md)
 
-The original Bolt deployment was found to serve an earlier prototype during release preparation. Check [release status](docs/submission/RELEASE_STATUS.md) for the verified current build and remaining publishing steps.
+The current game is published on GitHub Pages as a free prototype backup. The original Bolt deployment was found to serve an earlier prototype and still needs synchronization through the founder's signed-in Bolt project. Check [release status](docs/submission/RELEASE_STATUS.md) before choosing the contest live link.
 
 ## What you can play
 

@@ -4,7 +4,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 (async () => {
   const browser = await launchBrowser();
-  const page = await browser.newPage({ viewport, reducedMotion: process.env.CI ? 'reduce' : 'no-preference' });
+  const page = await browser.newPage({ viewport, deviceScaleFactor: process.env.CI ? .5 : 1, reducedMotion: process.env.CI ? 'reduce' : 'no-preference' });
   const errors = []; page.on('pageerror', e => errors.push(e.message));
   const url = fixtureUrl;
   const state = () => page.evaluate(() => window.mikanraQA.shift());

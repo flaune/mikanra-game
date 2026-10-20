@@ -4,7 +4,7 @@ const fs=require('node:fs');
 const path=require('node:path');
 (async()=>{
  const browser=await launchBrowser();
- const page=await browser.newPage({viewport,reducedMotion:process.env.CI?'reduce':'no-preference'});const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ const page=await browser.newPage({viewport,deviceScaleFactor:process.env.CI?.5:1,reducedMotion:process.env.CI?'reduce':'no-preference'});const errors=[];page.on('pageerror',e=>errors.push(e.message));
  async function summary(){await page.getByRole('button',{name:'Continue café',exact:true}).click({timeout:60000});await page.evaluate(()=>window.mikanraQA.aim('shift-register'));await page.waitForFunction(()=>window.mikanraQA.engine.interaction.currentTarget?.id==='shift-register');await page.keyboard.press('KeyE');await page.getByRole('heading',{name:'A place to belong.',exact:true}).waitFor();}
  try{
   await page.addInitScript(()=>{if(!sessionStorage.getItem('check-fixture')){localStorage.setItem('mikanra.chapter-one.v1',JSON.stringify({version:1,stage:'done',customer:2,day:7,hired:true,chapterCompleted:true,relationships:[6,6,6],tray:[]}));localStorage.removeItem('mikanra.learning.v1');sessionStorage.setItem('check-fixture','1');}});

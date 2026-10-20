@@ -23,8 +23,9 @@ Development disclosure: I conceived and directed Mikanra. Bolt.new created the i
 ## Links
 
 - Source: https://github.com/flaune/mikanra-game
+- Verified current playable preview: https://flaune.github.io/mikanra-game/
 - Original public Bolt deployment: https://mikanra-japanese-lea-d6bu.bolt.host/
-- Current build / deployment verification: see RELEASE_STATUS.md before selecting the live link.
+- The original Bolt deployment still needs synchronization. See RELEASE_STATUS.md before selecting the contest live link; the preview does not replace the required editor link or establish eligibility.
 - Bolt editor URL: obtain the editor URL from the original project opened through the supplied access link. The access link redirects to login in an anonymous browser and is not a verified editor URL.
 - Optional demo video: upload a public YouTube or X recording of up to five minutes using DEMO_SCRIPT.md. A video is optional.
 
