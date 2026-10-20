@@ -21,9 +21,14 @@ export default function DialogueBox({ speaker, text, children, onContinue, onClo
     box.current?.focus({ preventScroll: true });
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) { setRevealed(text.length); return; }
     setRevealed(0);
-    const timer = setInterval(() => setRevealed(value => Math.min(text.length, value + 3)), 24);
-    const stop = setTimeout(() => clearInterval(timer), Math.ceil(text.length / 3) * 24 + 30);
-    return () => { clearInterval(timer); clearTimeout(stop); };
+    const started = performance.now();
+    const timer = setInterval(() => {
+      const count = Math.min(text.length, Math.floor((performance.now() - started) / 24) * 3);
+      // Timer callbacks can be delayed by rendering; completed/skipped text never retreats.
+      setRevealed(value => Math.max(value, count));
+      if (count >= text.length) clearInterval(timer);
+    }, 24);
+    return () => clearInterval(timer);
   }, [text]);
   const complete = revealed >= text.length;
   const advance = () => { if (!complete) setRevealed(text.length); else onContinue?.(); };

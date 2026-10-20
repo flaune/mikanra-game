@@ -29,6 +29,7 @@ async function run(file, url) {
 async function main() {
   try {
     const dev = await start([], 4175);
+    await run('tests/browser/dialogue.cjs', dev);
     await run('tests/browser/preparation.cjs', dev);
     await run('tests/browser/chapter-check.cjs', dev);
     await stop();

@@ -48,6 +48,12 @@
     "file": "three.txt"
   },
   {
+    "name": "tailwindcss",
+    "version": "4.3.3",
+    "license": "MIT",
+    "file": "tailwindcss.txt"
+  },
+  {
     "name": "HTS Voice Mei (all 50 Japanese clips)",
     "version": "2009–2013",
     "license": "CC BY 3.0",

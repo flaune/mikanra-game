@@ -9,11 +9,13 @@ export default defineConfig({
   // Browser checks use a stable snapshot while evidence files are written.
   server: process.env.MIKANRA_E2E === '1' ? { hmr: false, watch: null, forwardConsole: false } : undefined,
   resolve: {
+    dedupe: ['react', 'react-dom'],
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
   optimizeDeps: {
+    entries: ['index.html', 'tests/browser/fixtures/*.html'],
     exclude: ['@dimforge/rapier3d-compat'],
   },
 });

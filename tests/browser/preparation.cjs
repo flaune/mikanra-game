@@ -4,7 +4,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 (async () => {
   const browser = await launchBrowser();
-  const page = await browser.newPage({ viewport });
+  const page = await browser.newPage({ viewport, reducedMotion: process.env.CI ? 'reduce' : 'no-preference' });
   const errors = []; page.on('pageerror', e => errors.push(e.message));
   const url = fixtureUrl;
   const state = () => page.evaluate(() => window.mikanraQA.shift());
@@ -79,5 +79,5 @@ const path = require('node:path');
     await fallback.addInitScript(()=>localStorage.setItem('mikanra.chapter-one.v1',JSON.stringify({version:1,hired:true,stage:'brew',day:2,customer:0,helped:true,tray:[],service:{vessels:Array.from({length:4},(_,id)=>({id,state:'clean'})),kettle:'heating',kettleTime:8,hotWater:2}})));
     await fallback.goto(url);await fallback.getByRole('button',{name:'Continue café',exact:true}).click({timeout:60000});await fallback.locator('.rive-fallback').waitFor();assert.equal(await fallback.locator('.cafe-work').count(),1);await fallback.screenshot({path:path.join(output,'rive-fallback.png')});await fallback.close();
     assert.deepEqual(errors,[]);fs.writeFileSync(path.join(output,'preparation-results.json'),JSON.stringify({passed:true,errors,firstDaySales:1150,verified:['three recipes','two-cup tea','local Rive','pause freezes brewing','cup washing','pantry','closing cleanup','Rive fallback','waiting neighbor','finale and optional check']},null,2));console.log('PASS café preparation, day one, later management, local Rive, pause, and finale.');
-  } catch(error){await screen('preparation-failure').catch(()=>{});console.error('STATE',JSON.stringify(await state()));console.error('BODY',(await page.locator('body').innerText()).slice(0,3500));throw error;} finally {await browser.close();}
+  } catch(error){await screen('preparation-failure').catch(()=>{});console.error('BROWSER ERRORS',errors);console.error('STATE',JSON.stringify(await state()));console.error('BODY',(await page.locator('body').innerText()).slice(0,3500));throw error;} finally {await browser.close();}
 })().catch(error=>{console.error(error);process.exit(1);});

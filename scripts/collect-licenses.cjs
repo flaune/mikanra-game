@@ -21,6 +21,8 @@ function collect(name) {
   for (const child of Object.keys(pkg.dependencies || {})) collect(child);
 }
 for (const name of Object.keys(manifest.dependencies)) collect(name);
+// Tailwind is a build dependency whose framework styles are included in shipped CSS.
+collect('tailwindcss');
 fs.copyFileSync(path.join(root, 'public/audio/ja/LICENSE_mei_normal.htsvoice.txt'), path.join(destination, 'mei-voice.txt'));
 entries.push({ name: 'HTS Voice Mei (all 50 Japanese clips)', version: '2009–2013', license: 'CC BY 3.0', file: 'mei-voice.txt' });
 for (const font of ['barlowcondensed', 'notosansjp']) entries.push({ name: `Google Fonts: ${font}`, version: 'hosted by Google Fonts', license: 'SIL OFL 1.1', file: `${font}-OFL.txt` });

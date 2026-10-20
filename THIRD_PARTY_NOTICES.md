@@ -8,6 +8,7 @@ Original Mikanra material is © 2026 Bryan, all rights reserved. Third-party rig
 | Three.js | Procedural 3D rendering | MIT |
 | Rapier 3D | Collision and physics | Apache 2.0 |
 | Rive Canvas Lite and matching WASM | Animated preparation progress | MIT |
+| Tailwind CSS | Generated framework styles in the shipped CSS | MIT |
 | HTS voice Mei | All 50 Japanese pronunciation clips | CC BY 3.0; © 2009–2013 Nagoya Institute of Technology / MMDAgent Project Team. Synthesized locally at 90% speed, encoded as 24 kHz mono MP3. |
 | Barlow Condensed, Noto Sans JP | Requested from Google Fonts | SIL OFL 1.1 |
 | Café, street, train, character geometry and textures | Procedurally authored with AI-assisted development | Original project material; all rights reserved |
